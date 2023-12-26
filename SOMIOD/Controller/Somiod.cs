@@ -12,9 +12,12 @@ using System.Web.Http;
 using System.Web.UI.WebControls;
 using System.Text;
 using Container = SOMIOD.Models.Container;
+using Application = SOMIOD.Models.Application;
 using System.Windows.Input;
 using System.Web.UI.WebControls.WebParts;
 using System.Collections;
+
+
 
 namespace SOMIOD.Controller
 {
@@ -22,7 +25,7 @@ namespace SOMIOD.Controller
     public class Somiod : ApiController
     {
 
-        //string connectionString = SOMIOD.Properties.Settings.Default.ConStr;
+        string connectionString = SOMIOD.Properties.Settings.Default.ConStr;
 
         //Cria o BROKEN mosquito
         MqttClient mClient = new MqttClient(IPAddress.Parse("127.0.0.1")); //OR use the broker hostname
@@ -38,11 +41,11 @@ namespace SOMIOD.Controller
                 conn = new SqlConnection(connectionString);
                 conn.Open();
 
-                string str = "INSERT INTO Prods (id, name, creation_dt) VALUES (@id, @name, @creation_dt)";
+                string str = "INSERT INTO application (id, name, creation_dt) VALUES (@id, @name, @creation_dt)";
                 SqlCommand command = new SqlCommand(str, conn);
-                command.Parameters.AddWithValue("@id", a.id);
-                command.Parameters.AddWithValue("@name", a.name);
-                command.Parameters.AddWithValue("@creation_dt", a.creation_dt);
+                command.Parameters.AddWithValue("@id", a.Id);
+                command.Parameters.AddWithValue("@name", a.Name);
+                command.Parameters.AddWithValue("@creation_dt", a.Creation_dt);
 
 
                 int rows = command.ExecuteNonQuery();
@@ -73,12 +76,12 @@ namespace SOMIOD.Controller
                 conn = new SqlConnection(connectionString);
                 conn.Open();
 
-                string str = "INSERT INTO Container (id ,name, creation_dt, parent) VALUES (@id, @name, @creation_dt, @parent)";
+                string str = "INSERT INTO container (id ,name, creation_dt, parent) VALUES (@id, @name, @creation_dt, @parent)";
                 SqlCommand command = new SqlCommand(str, conn);
-                command.Parameters.AddWithValue("@id", c.id);
-                command.Parameters.AddWithValue("@name", c.name);
-                command.Parameters.AddWithValue("@creation_dt", c.creation_dt);
-                command.Parameters.AddWithValue("@parent", c.parent);
+                command.Parameters.AddWithValue("@id", c.Id);
+                command.Parameters.AddWithValue("@name", c.Name);
+                command.Parameters.AddWithValue("@creation_dt", c.Creation_dt);
+                command.Parameters.AddWithValue("@parent", c.Parent);
 
                 int rows = command.ExecuteNonQuery();
                 conn.Close();
@@ -108,15 +111,18 @@ namespace SOMIOD.Controller
                 conn = new SqlConnection(connectionString);
                 conn.Open();
 
-                string str = "INSERT INTO Data (id, name, creation_dt, parent) VALUES (@id, @name, @creation_dt, @parent)";
+                /*
+                string str = "INSERT INTO data (id, name, creation_dt, parent) VALUES (@id, @name, @creation_dt, @parent)";
                 SqlCommand command = new SqlCommand(str, conn);
-                command.Parameters.AddWithValue("@id", c.id);
-                command.Parameters.AddWithValue("@name", c.name);
-                command.Parameters.AddWithValue("@creation_dt", c.creation_dt);
-                command.Parameters.AddWithValue("@parent", c.parent);
+                command.Parameters.AddWithValue("@id", c.Id);
+                command.Parameters.AddWithValue("@name", c.Name);
+                command.Parameters.AddWithValue("@creation_dt", c.Creation_dt);
+                command.Parameters.AddWithValue("@parent", c.Parent);
+                */
 
                 int rows = command.ExecuteNonQuery();
                 conn.Close();
+
                 if (rows <= 0)
                 {
                     return BadRequest("Error");
@@ -151,22 +157,24 @@ namespace SOMIOD.Controller
                 conn = new SqlConnection(connectionString);
                 conn.Open();
 
-                string str = "SELECT * FROM Container (id, name, creation_dt, parent) WHERE name=@container";
+                string str = "SELECT * FROM container (id, name, creation_dt, parent) WHERE name=@container";
                 SqlCommand command = new SqlCommand(str, conn);
                 command.Parameters.AddWithValue("@container", container);
+
                 SqlDataReader reader = command.ExecuteReader();
 
                 while (reader.Read())
                 {
                     Container c = new Container
                     {
-                        id = (int)reader["id"],
-                        name = (string)reader["name"],
-                        creation_dt = (DateTime)reader["creation_dt"],
-                        parent = (int)reader["parent"]
+                        Id = (int)reader["id"],
+                        Name = (string)reader["name"],
+                        Creation_dt = (DateTime)reader["creation_dt"],
+                        Parent = (int)reader["parent"]
                     };
                     containers.Add(c);
                 }
+
                 reader.Close();
                 return containers;
 
@@ -177,7 +185,7 @@ namespace SOMIOD.Controller
             }
         }
 
-
+        
         [HttpGet]
         [Route("{application}")]
         public IEnumerable<Application> getApplication(string app)
@@ -199,9 +207,9 @@ namespace SOMIOD.Controller
                 {
                     Application a = new Application
                     {
-                        id = (int)reader["id"],
-                        name = (string)reader["name"],
-                        creation_dt = (DateTime)reader["creation_dt"],
+                        Id = (int)reader["id"],
+                        Name = (string)reader["name"],
+                        Creation_dt = (DateTime)reader["creation_dt"],
                     };
                     applications.Add(a);
                 }
