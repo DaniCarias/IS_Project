@@ -175,6 +175,8 @@
     <Compile Include="Controller\Somiod.cs" />
     <Compile Include="Models\Application.cs" />
     <Compile Include="Models\Container.cs" />
+    <Compile Include="Models\Data.cs" />
+    <Compile Include="Models\Subscription.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
