@@ -4,7 +4,7 @@ namespace SOMIOD
 {
     public class WebApiApplication : System.Web.HttpApplication
     {
-        protected void Application__Start()
+        protected void Application_Start()
         {
             GlobalConfiguration.Configure(WebApiConfig.Register);
         }
