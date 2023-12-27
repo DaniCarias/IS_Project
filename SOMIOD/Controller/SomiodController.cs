@@ -23,7 +23,7 @@ using static System.Net.Mime.MediaTypeNames;
 namespace SOMIOD.Controller
 {
     [RoutePrefix("api/somiod")]
-    public class Somiod : ApiController
+    public class SomiodController : ApiController
     {
 
         //Cria o BROKEN mosquito

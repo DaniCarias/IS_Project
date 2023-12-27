@@ -1,6 +1,7 @@
 packages
 .vs
 .idea
+Lamp/bin/
 Lamp/obj/
 SOMIOD/bin/
 SOMIOD/obj/
