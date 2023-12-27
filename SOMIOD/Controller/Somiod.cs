@@ -16,6 +16,7 @@ using Application = SOMIOD.Models.Application;
 using System.Windows.Input;
 using System.Web.UI.WebControls.WebParts;
 using System.Collections;
+using SOMIOD.Helpers;
 
 
 
@@ -25,37 +26,19 @@ namespace SOMIOD.Controller
     public class Somiod : ApiController
     {
 
-        string connectionString = SOMIOD.Properties.Settings.Default.ConStr;
-
         //Cria o BROKEN mosquito
         MqttClient mClient = new MqttClient(IPAddress.Parse("127.0.0.1")); //OR use the broker hostname
 
         [HttpPost]
-        [Route("createApplication")]
+        [Route("")] //Create Application
         public IHttpActionResult PostApplication([FromBody] Application a)
         {
-            SqlConnection conn = null;
-
+            
             try
             {
-                conn = new SqlConnection(connectionString);
-                conn.Open();
+                dbHelper.createApp(a.Name);
 
-                string str = "INSERT INTO application (id, name, creation_dt) VALUES (@id, @name, @creation_dt)";
-                SqlCommand command = new SqlCommand(str, conn);
-                command.Parameters.AddWithValue("@id", a.Id);
-                command.Parameters.AddWithValue("@name", a.Name);
-                command.Parameters.AddWithValue("@creation_dt", a.Creation_dt);
-
-
-                int rows = command.ExecuteNonQuery();
-                conn.Close();
-                if (rows <= 0)
-                {
-                    return BadRequest("Error");
-                }
-
-                return Ok(a);
+                return Ok(a);//enviar por XML
 
             }
             catch (Exception ex)
@@ -64,33 +47,25 @@ namespace SOMIOD.Controller
             }
         }
 
+        //DELETE APPLICATION [Route("{application}")]
+        //DELETE CONTAINER [Route("{application}/{container}")]
+        //GET CONTAINERS  [Route("{application}/containers")]
+        //POST SUBSCRIPTION [Route("{application}/{container}/subscription")]
+        //DELETE SUBSCRIPTION [Route("{application}/{container}/subscription")]
+        //GET CONTAINERS [Route("{application}/containers")]
+        //GET DATA [Route("{application}/{container}/data")]
+        //DELETE DATA [Route("{application}/{container}/data")]
 
         [HttpPost]
-        [Route("createContainers")]
+        [Route("{application}")] //Create Container
         public IHttpActionResult PostContainers([FromBody] Container c)
         {
-            SqlConnection conn = null;
 
             try
             {
-                conn = new SqlConnection(connectionString);
-                conn.Open();
+               dbHelper.createContainer(c.Name, c.Parent); //enviar o application
 
-                string str = "INSERT INTO container (id ,name, creation_dt, parent) VALUES (@id, @name, @creation_dt, @parent)";
-                SqlCommand command = new SqlCommand(str, conn);
-                command.Parameters.AddWithValue("@id", c.Id);
-                command.Parameters.AddWithValue("@name", c.Name);
-                command.Parameters.AddWithValue("@creation_dt", c.Creation_dt);
-                command.Parameters.AddWithValue("@parent", c.Parent);
-
-                int rows = command.ExecuteNonQuery();
-                conn.Close();
-                if (rows <= 0)
-                {
-                    return BadRequest("Error");
-                }
-
-                return Ok(c);
+                return Ok(c);//enviar por XML
 
             }
             catch (Exception ex)
@@ -101,41 +76,22 @@ namespace SOMIOD.Controller
 
 
         [HttpPost]
-        [Route("sendDataToBroker")]
-        public IHttpActionResult sendDataToBroker([FromBody] Application c)
+        [Route("{application}/{container}/data")] //Send Data to Broker
+        public IHttpActionResult sendDataToBroker(string application, string container, [FromBody] Data d)
         {
-            SqlConnection conn = null;
-
             try
             {
-                conn = new SqlConnection(connectionString);
-                conn.Open();
+                dbHelper.sendData(d.Content, application, container);
 
-                /*
-                string str = "INSERT INTO data (id, name, creation_dt, parent) VALUES (@id, @name, @creation_dt, @parent)";
-                SqlCommand command = new SqlCommand(str, conn);
-                command.Parameters.AddWithValue("@id", c.Id);
-                command.Parameters.AddWithValue("@name", c.Name);
-                command.Parameters.AddWithValue("@creation_dt", c.Creation_dt);
-                command.Parameters.AddWithValue("@parent", c.Parent);
-                */
-
-                int rows = command.ExecuteNonQuery();
-                conn.Close();
-
-                if (rows <= 0)
-                {
-                    return BadRequest("Error");
-                }
-                else if(mClient.IsConnected)
+                if(mClient.IsConnected)
                 {
                     //string selectedTopic = comboBox1.SelectedItem.ToString();
                     //string textFromTextBox = textBox1.Text;
                     //envia a mensagem para o broker com o topico que foi selecionado e a mensagem que foi escrita
-                    mClient.Publish(/* canal */"canal1", /* MSG */ Encoding.UTF8.GetBytes("123"));
+                    mClient.Publish(application, d.Content);
                 }
 
-                return Ok(c);
+                return Ok(d); //enviar por XML
 
             }
             catch (Exception ex)
@@ -146,38 +102,13 @@ namespace SOMIOD.Controller
 
 
         [HttpGet]
-        [Route("{application}/{container}")]
-        public IEnumerable<Container> getContainer( string app, string container)
+        [Route("{application}/{container}")] //Get Container
+        public Container getContainer( string container)
         {
-            List<Container> containers = new List<Container>();
-            SqlConnection conn = null;
-
             try
             {
-                conn = new SqlConnection(connectionString);
-                conn.Open();
-
-                string str = "SELECT * FROM container (id, name, creation_dt, parent) WHERE name=@container";
-                SqlCommand command = new SqlCommand(str, conn);
-                command.Parameters.AddWithValue("@container", container);
-
-                SqlDataReader reader = command.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    Container c = new Container
-                    {
-                        Id = (int)reader["id"],
-                        Name = (string)reader["name"],
-                        Creation_dt = (DateTime)reader["creation_dt"],
-                        Parent = (int)reader["parent"]
-                    };
-                    containers.Add(c);
-                }
-
-                reader.Close();
-                return containers;
-
+                Container cont = dbHelper.getContainer(container); //enviar o application
+                return cont; //enviar por XML
             }
             catch (Exception ex)
             {
@@ -187,39 +118,34 @@ namespace SOMIOD.Controller
 
         
         [HttpGet]
-        [Route("{application}")]
-        public IEnumerable<Application> getApplication(string app)
+        [Route("{application}")] //Get Application
+        public Application getApplication(string application)
         {
-            List<Application> applications = new List<Application>();
-            SqlConnection conn = null;
-
             try
             {
-                conn = new SqlConnection(connectionString);
-                conn.Open();
-
-                string str = "SELECT * FROM Application (id, name, creation_dt, parent) WHERE name=@app";
-                SqlCommand command = new SqlCommand(str, conn);
-                command.Parameters.AddWithValue("@app", app);
-                SqlDataReader reader = command.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    Application a = new Application
-                    {
-                        Id = (int)reader["id"],
-                        Name = (string)reader["name"],
-                        Creation_dt = (DateTime)reader["creation_dt"],
-                    };
-                    applications.Add(a);
-                }
-                reader.Close();
-                return applications;
+                Application app = dbHelper.getApplication(application);
+                return app; //enviar por XML
 
             }
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+
+        [HttpGet]
+        [Route("")] //Get Applications
+        public IEnumerable<Application> GetApplications()
+        {
+            try
+            {
+                List<Application> applications = dbHelper.GetApplications();
+                return applications; //enviar por XML
+            }
+            catch (Exception e)
+            {
+                throw e;
             }
         }
 
