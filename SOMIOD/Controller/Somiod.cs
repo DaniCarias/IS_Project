@@ -19,7 +19,6 @@ using System.Collections;
 using SOMIOD.Helpers;
 
 
-
 namespace SOMIOD.Controller
 {
     [RoutePrefix("api/somiod")]
@@ -29,16 +28,90 @@ namespace SOMIOD.Controller
         //Cria o BROKEN mosquito
         MqttClient mClient = new MqttClient(IPAddress.Parse("127.0.0.1")); //OR use the broker hostname
 
+
+        #region SOMIOD DISCOVER
+
+        [HttpGet]
+        [Route("")] //Get all
+        public IEnumerable GetAll()
+        {
+            try
+            {
+                var headers = Request.Headers;
+
+                if (headers.TryGetValues("somiod-discover", out var contentType))
+                {
+                    switch (contentType.ToString())
+                    {
+                        case "application":
+                            List<Application> applications = dbHelper.GetAllApplications();
+                            return applications; //enviar por XML
+                        case "container":
+                            List<Container> containers = dbHelper.GetAllContainers();
+                            return containers; //enviar por XML
+                        case "data":
+                            List<Data> data = dbHelper.GetAllDatas();
+                            return data; //enviar por XML
+
+                        default:
+                            return null;
+                    }
+                }
+                else
+                {
+                    throw new Exception("Header not found");
+                }
+               
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        #endregion
+
+
+        #region Application
+
         [HttpPost]
         [Route("")] //Create Application
         public IHttpActionResult PostApplication([FromBody] Application a)
         {
-            
             try
             {
-                dbHelper.createApp(a.Name);
-
+                dbHelper.createApplication(a.Name);
                 return Ok(a);//enviar por XML
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpDelete]
+        [Route("{application}")] //Delete Application
+        public IHttpActionResult DeleteApplication(string app)
+        {
+            try
+            {
+                dbHelper.deleteApplication(app);
+                return Ok();//enviar por XML
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet]
+        [Route("{application}")] //Get Application
+        public Application GetApplication(string application)
+        {
+            try
+            {
+                Application app = dbHelper.getApplication(application);
+                return app; //enviar por XML
 
             }
             catch (Exception ex)
@@ -47,26 +120,25 @@ namespace SOMIOD.Controller
             }
         }
 
-        //DELETE APPLICATION [Route("{application}")]
-        //DELETE CONTAINER [Route("{application}/{container}")]
-        //GET CONTAINERS  [Route("{application}/containers")]
+        #endregion
+
         //POST SUBSCRIPTION [Route("{application}/{container}/subscription")]
         //DELETE SUBSCRIPTION [Route("{application}/{container}/subscription")]
-        //GET CONTAINERS [Route("{application}/containers")]
-        //GET DATA [Route("{application}/{container}/data")]
-        //DELETE DATA [Route("{application}/{container}/data")]
+        
+        
+        
+
+        #region Containers
 
         [HttpPost]
         [Route("{application}")] //Create Container
-        public IHttpActionResult PostContainers([FromBody] Container c)
+        public IHttpActionResult PostContainers(string application, [FromBody] Container c)
         {
 
             try
             {
-               dbHelper.createContainer(c.Name, c.Parent); //enviar o application
-
+                dbHelper.createContainer(c.Name, application);
                 return Ok(c);//enviar por XML
-
             }
             catch (Exception ex)
             {
@@ -74,10 +146,58 @@ namespace SOMIOD.Controller
             }
         }
 
+        [HttpDelete]
+        [Route("{application}/{container}")] //Delete Container
+        public IHttpActionResult DeleteContainer(string application, string container)
+        {
+            try
+            {
+                dbHelper.deleteContainer(application, container);
+                return Ok();//enviar por XML
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet]
+        [Route("{application}/{container}")] //Get Container
+        public Container GetContainer(string container)
+        {
+            try
+            {
+                Container cont = dbHelper.getContainer(container); //enviar o application
+                return cont; //enviar por XML
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet]
+        [Route("{application}/containers")] //Get all Containers of an Application
+        public IEnumerable<Container> GetContainers(string application)
+        {
+            try
+            {
+                List<Container> containers = dbHelper.GetContainers(application);
+                return containers; //enviar por XML
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        #endregion
+
+        #region Data
 
         [HttpPost]
         [Route("{application}/{container}/data")] //Send Data to Broker
-        public IHttpActionResult sendDataToBroker(string application, string container, [FromBody] Data d)
+        public IHttpActionResult SendDataToBroker(string application, string container, [FromBody] Data d)
         {
             try
             {
@@ -100,15 +220,14 @@ namespace SOMIOD.Controller
             }
         }
 
-
-        [HttpGet]
-        [Route("{application}/{container}")] //Get Container
-        public Container getContainer( string container)
+        [HttpDelete]
+        [Route("{application}/{container}/data/{dataId}")] //Delete Data
+        public IHttpActionResult DeleteData(string application, string container, int dataId)
         {
             try
             {
-                Container cont = dbHelper.getContainer(container); //enviar o application
-                return cont; //enviar por XML
+                dbHelper.deleteData(application, container, dataId);
+                return Ok();//enviar por XML
             }
             catch (Exception ex)
             {
@@ -116,38 +235,25 @@ namespace SOMIOD.Controller
             }
         }
 
+        [HttpGet]
+        [Route("{application}/{container}/data/{dataId}")] //Get Data
+        public Data GetData(string application, string container, int dataId)
+        {
+            try
+            {
+                Data data = dbHelper.getData(application, container, dataId);
+                return data; //enviar por XML
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         
-        [HttpGet]
-        [Route("{application}")] //Get Application
-        public Application getApplication(string application)
-        {
-            try
-            {
-                Application app = dbHelper.getApplication(application);
-                return app; //enviar por XML
-
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        #endregion
 
 
-        [HttpGet]
-        [Route("")] //Get Applications
-        public IEnumerable<Application> GetApplications()
-        {
-            try
-            {
-                List<Application> applications = dbHelper.GetApplications();
-                return applications; //enviar por XML
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
+
 
     }
 }
