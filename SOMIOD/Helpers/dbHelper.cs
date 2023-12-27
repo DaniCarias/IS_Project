@@ -437,7 +437,57 @@ namespace SOMIOD.Helpers
         #endregion
 
 
+        #region Subscription
 
+        public static void createSubscription(string name, string eventType, string endPoint, string application, string container)
+        {
+            SqlConnection conn = null;
+
+            conn = new SqlConnection(connectionString);
+            conn.Open();
+
+            int parent = getContainerId(container);
+
+            string str = "INSERT INTO subscription (name, event_type, end_point, creation_dt, parent) VALUES (@name, @event_type, @end_point, @creation_dt, @parent)";
+            SqlCommand command = new SqlCommand(str, conn);
+            command.Parameters.AddWithValue("@name", name);
+            command.Parameters.AddWithValue("@event_type", eventType);
+            command.Parameters.AddWithValue("@end_point", endPoint);
+            command.Parameters.AddWithValue("@creation_dt", DateTime.Now);
+            command.Parameters.AddWithValue("@parent", parent);
+
+            int rows = command.ExecuteNonQuery();
+            conn.Close();
+            if (rows <= 0)
+            {
+                throw new Exception("Error");
+            }
+        }
+
+        public static void deleteSubscription(string application, string container, int subscriptionId)
+        {
+            SqlConnection conn = null;
+
+            conn = new SqlConnection(connectionString);
+            conn.Open();
+
+            int parent = getContainerId(container);
+
+            string str = "DELETE FROM subscription WHERE id=@id && parent=@parent";
+            SqlCommand command = new SqlCommand(str, conn);
+            command.Parameters.AddWithValue("@id", subscriptionId);
+            command.Parameters.AddWithValue("@parent", parent);
+
+            int rows = command.ExecuteNonQuery();
+            conn.Close();
+
+            if (rows <= 0)
+            {
+                throw new Exception("Error");
+            }
+        }
+
+        #endregion
 
     }
 }

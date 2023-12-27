@@ -52,6 +52,7 @@ namespace SOMIOD.Controller
                         case "data":
                             List<Data> datas = dbHelper.GetAllDatas();
                             return datas; //enviar por XML
+                        //case subscription:
                         default:
                             return null;
                     }
@@ -89,6 +90,7 @@ namespace SOMIOD.Controller
                         case "data":
                             List<Data> data = dbHelper.GetDatas(application, null);
                             return data; //enviar por XML
+                        //case subscription:
                         default:
                             return null;
                     }
@@ -126,6 +128,7 @@ namespace SOMIOD.Controller
                         case "data":
                             List<Data> data = dbHelper.GetDatas(application, container);
                             return data; //enviar por XML
+                        //case subscription:
                         default:
                             return null;
                     }
@@ -244,21 +247,6 @@ namespace SOMIOD.Controller
             }
         }
 
-        [HttpGet]
-        [Route("{application}/containers")] //Get all Containers of an Application
-        public IEnumerable<Container> GetContainers(string application)
-        {
-            try
-            {
-                List<Container> containers = dbHelper.GetContainers(application);
-                return containers; //enviar por XML
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
         #endregion
 
 
@@ -322,8 +310,41 @@ namespace SOMIOD.Controller
         #endregion
 
 
-        //POST SUBSCRIPTION [Route("{application}/{container}/subscription")]
-        //DELETE SUBSCRIPTION [Route("{application}/{container}/subscription")]
+        #region Subscription
+
+        [HttpPost]
+        [Route("{application}/{container}/subscription")] //Create Subscription
+        public IHttpActionResult PostSubscription(string application, string container, [FromBody] Subscription s)
+        {
+            try
+            {
+                dbHelper.createSubscription(s.Name, s.EventType, s.Endpoint, application, container);
+                return Ok(s);//enviar por XML
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpDelete]
+        [Route("{application}/{container}/subscription/{subscriptionId}")] //Delete Subscription
+        public IHttpActionResult DeleteSubscription(string application, string container, int subscriptionId)
+        {
+            try
+            {
+                dbHelper.deleteSubscription(application, container, subscriptionId);
+                return Ok();//enviar por XML
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+
 
     }
 }

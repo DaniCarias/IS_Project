@@ -15,14 +15,14 @@ namespace SOMIOD.Models
         [XmlElement(ElementName = "Id")]
         public int Id { get; set; }
 
-        [XmlElement(ElementName = "Content")]
-        public string Content { get; set; }
+        [XmlElement(ElementName = "Name")]
+        public string Name { get; set; }
 
         [XmlElement(ElementName = "Creation_dt")]
         public DateTime Creation_dt { get; set; }
 
         [XmlElement(ElementName = "Parent")]
-        public int Parent { get; set; }
+        public int Parent { get; set; } //Container id
 
         [XmlElement(ElementName = "EventType")]
         public string EventType { get; set; }
@@ -33,10 +33,10 @@ namespace SOMIOD.Models
 
         public Subscription() { }
 
-        public Subscription(int id, string content, DateTime creationDate, int parent, string eventType, string endpoint)
+        public Subscription(int id, string name, DateTime creationDate, int parent, string eventType, string endpoint)
         {
             Id = id;
-            Content = content;
+            Name = name;
             Creation_dt = creationDate; //.ToString("yyyy-MM-dd HH:mm:ss");
             Parent = parent;
             EventType = eventType;
