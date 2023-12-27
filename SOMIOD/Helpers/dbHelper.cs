@@ -18,18 +18,13 @@ namespace SOMIOD.Helpers
     public class dbHelper
     {
 
-        //Fazer connectionString para a bd postgres
-        //string connectionString = SOMIOD.Properties.Settings.Default.ConStr;
-
         static string host = "localhost";
         static string database = "projeto_is";
         static string username = "projeto_is";
         static string password = "password";
         static int port = 5432;
 
-        // Build the connection string
         static string connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};";
-
 
         #region Applications
 

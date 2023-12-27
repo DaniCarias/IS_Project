@@ -28,7 +28,6 @@ namespace SOMIOD.Controller
 
         //Cria o BROKEN mosquito
         MqttClient mClient = new MqttClient(IPAddress.Parse("127.0.0.1")); //OR use the broker hostname
-
         
         #region SOMIOD DISCOVER
 
