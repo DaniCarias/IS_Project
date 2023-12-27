@@ -3,5 +3,6 @@ packages
 .idea
 Lamp/bin/
 Lamp/obj/
+Switch_lamp/obj/
 SOMIOD/bin/
 SOMIOD/obj/
