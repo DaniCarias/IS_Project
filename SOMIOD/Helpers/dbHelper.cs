@@ -136,7 +136,27 @@ namespace SOMIOD.Helpers
             return list;
         }
 
-        
+        public static Models.Application updateApplication(string name, string application)
+        {
+            SqlConnection conn = null;
+
+            conn = new SqlConnection(connectionString);
+            conn.Open();
+
+            string str = "UPDATE application SET name=@name WHERE name=@application";
+            SqlCommand command = new SqlCommand(str, conn);
+            command.Parameters.AddWithValue("@name", name);
+            command.Parameters.AddWithValue("@application", application);
+
+            int rows = command.ExecuteNonQuery();
+
+            conn.Close();
+            if (rows <= 0)
+            {
+                throw new Exception("Error");
+            }
+            return getApplication(name);
+        }
 
         #endregion
 
@@ -293,6 +313,31 @@ namespace SOMIOD.Helpers
             }
             reader.Close();
             return list;
+        }
+
+        public static Models.Container updateContainer(string name, string application, string container)
+        {
+            SqlConnection conn = null;
+
+            conn = new SqlConnection(connectionString);
+            conn.Open();
+
+            int parent = getApplicationId(application);
+
+            string str = "UPDATE container SET name=@name WHERE name=@container && parent=@parent";
+            SqlCommand command = new SqlCommand(str, conn);
+            command.Parameters.AddWithValue("@name", name);
+            command.Parameters.AddWithValue("@container", container);
+            command.Parameters.AddWithValue("@parent", parent);
+
+            int rows = command.ExecuteNonQuery();
+
+            conn.Close();
+            if (rows <= 0)
+            {
+                throw new Exception("Error");
+            }
+            return getContainer(name);
         }
 
         #endregion

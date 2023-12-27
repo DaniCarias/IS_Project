@@ -196,6 +196,21 @@ namespace SOMIOD.Controller
             }
         }
 
+        [HttpPatch]
+        [Route("{application}")] //Update Application
+        public IHttpActionResult UpdateApplication(string application, [FromBody] string name)
+        {
+            try
+            {
+                Application app = dbHelper.updateApplication(name, application);
+                return Ok(app);//enviar por XML
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion
 
         
@@ -240,6 +255,21 @@ namespace SOMIOD.Controller
             {
                 Container cont = dbHelper.getContainer(container); //enviar o application
                 return cont; //enviar por XML
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPatch]
+        [Route("{application}/{container}")] //Update Container
+        public IHttpActionResult UpdateContainer(string application, string container, [FromBody] string name)
+        {
+            try
+            {
+                Container c = dbHelper.updateContainer(name, application, container);
+                return Ok(c);//enviar por XML
             }
             catch (Exception ex)
             {
