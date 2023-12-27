@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B4588334-0FCA-43C3-81AD-F6341F53BBD6}</ProjectGuid>
+    <ProjectGuid>{CFA22152-0EDA-4F6F-BD46-A081A24F2ECF}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>Lamp</RootNamespace>
-    <AssemblyName>Lamp</AssemblyName>
+    <RootNamespace>Switch_lamp</RootNamespace>
+    <AssemblyName>Switch_lamp</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -54,9 +54,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
