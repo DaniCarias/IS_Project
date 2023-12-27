@@ -6,3 +6,4 @@ Lamp/obj/
 Switch_lamp/obj/
 SOMIOD/bin/
 SOMIOD/obj/
+*.cache
