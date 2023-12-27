@@ -50,9 +50,8 @@ namespace SOMIOD.Controller
                             List<Container> containers = dbHelper.GetAllContainers();
                             return containers; //enviar por XML
                         case "data":
-                            List<Data> data = dbHelper.GetAllDatas();
-                            return data; //enviar por XML
-
+                            List<Data> datas = dbHelper.GetAllDatas();
+                            return datas; //enviar por XML
                         default:
                             return null;
                     }
@@ -66,6 +65,80 @@ namespace SOMIOD.Controller
             catch (Exception e)
             {
                 throw e;
+            }
+        }
+
+        [HttpGet]
+        [Route("{application}")] //Get from Application
+        public IEnumerable GetFromApplication(string application)
+        {
+            try
+            {
+                var headers = Request.Headers;
+
+                if (headers.TryGetValues("somiod-discover", out var contentType))
+                {
+                    switch (contentType.ToString())
+                    {
+                        case "application":
+                            GetApplication(application); //app info
+                            break;
+                        case "container":
+                            List<Container> containers = dbHelper.GetContainers(application);
+                            return containers; //enviar por XML
+                        case "data":
+                            List<Data> data = dbHelper.GetDatas(application, null);
+                            return data; //enviar por XML
+                        default:
+                            return null;
+                    }
+                }
+                else
+                {
+                    GetApplication(application); //app info
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet]
+        [Route("{application}/{container}")] //Get from Application and Container
+        public IEnumerable GetFromApplication(string application, string container)
+        {
+            try
+            {
+                var headers = Request.Headers;
+
+                if (headers.TryGetValues("somiod-discover", out var contentType))
+                {
+                    switch (contentType.ToString())
+                    {
+                        case "application":
+                            //NAO SEI
+                            return null;
+                        case "container":
+                            GetContainer(container);
+                            break;
+                        case "data":
+                            List<Data> data = dbHelper.GetDatas(application, container);
+                            return data; //enviar por XML
+                        default:
+                            return null;
+                    }
+                }
+                else
+                {
+                    GetContainer(container); //container info
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 
@@ -105,7 +178,7 @@ namespace SOMIOD.Controller
         }
 
         [HttpGet]
-        [Route("{application}")] //Get Application
+        [Route("{application}")] //Get Application info
         public Application GetApplication(string application)
         {
             try
@@ -122,12 +195,7 @@ namespace SOMIOD.Controller
 
         #endregion
 
-        //POST SUBSCRIPTION [Route("{application}/{container}/subscription")]
-        //DELETE SUBSCRIPTION [Route("{application}/{container}/subscription")]
         
-        
-        
-
         #region Containers
 
         [HttpPost]
@@ -193,6 +261,7 @@ namespace SOMIOD.Controller
 
         #endregion
 
+
         #region Data
 
         [HttpPost]
@@ -249,11 +318,12 @@ namespace SOMIOD.Controller
                 throw ex;
             }
         }
-        
+
         #endregion
 
 
-
+        //POST SUBSCRIPTION [Route("{application}/{container}/subscription")]
+        //DELETE SUBSCRIPTION [Route("{application}/{container}/subscription")]
 
     }
 }

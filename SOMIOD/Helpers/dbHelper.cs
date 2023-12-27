@@ -136,7 +136,10 @@ namespace SOMIOD.Helpers
             return list;
         }
 
+        
+
         #endregion
+
 
         #region Containers
 
@@ -294,6 +297,7 @@ namespace SOMIOD.Helpers
 
         #endregion
 
+
         #region Data
 
         public static void sendData(string content, string app, string container)
@@ -380,6 +384,37 @@ namespace SOMIOD.Helpers
 
             string str = "SELECT * FROM data (id, content, creation_dt, parent)";
             SqlCommand command = new SqlCommand(str, conn);
+
+            List<Models.Data> list = new List<Models.Data>();
+
+            SqlDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                Models.Data data = new Models.Data
+                {
+                    Id = (int)reader["id"],
+                    Content = (string)reader["content"],
+                    Creation_dt = (DateTime)reader["creation_dt"],
+                    Parent = (int)reader["parent"]
+                };
+                list.Add(data);
+            }
+            reader.Close();
+            return list;
+        }
+
+        public static List<Models.Data> GetDatas(string application, string container)
+        {
+            SqlConnection conn = null;
+
+            conn = new SqlConnection(connectionString);
+            conn.Open();
+
+            int parent = getApplicationId(application);
+
+            string str = "SELECT * FROM data WHERE parent=@parent";
+            SqlCommand command = new SqlCommand(str, conn);
+            command.Parameters.AddWithValue("@parent", parent);
 
             List<Models.Data> list = new List<Models.Data>();
 
