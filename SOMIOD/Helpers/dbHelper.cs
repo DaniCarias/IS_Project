@@ -11,6 +11,7 @@ using System.Web;
 using System.Web.UI.WebControls;
 using System.Xml.Linq;
 using static System.Net.Mime.MediaTypeNames;
+using Npgsql;
 
 namespace SOMIOD.Helpers
 {
@@ -18,22 +19,31 @@ namespace SOMIOD.Helpers
     {
 
         //Fazer connectionString para a bd postgres
-        string connectionString = SOMIOD.Properties.Settings.Default.ConStr;
+        //string connectionString = SOMIOD.Properties.Settings.Default.ConStr;
+
+        static string host = "localhost";
+        static string database = "projeto_is";
+        static string username = "projeto_is";
+        static string password = "password";
+        static int port = 5432;
+
+        // Build the connection string
+        static string connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};";
+
 
         #region Applications
 
         public static int getApplicationId(string name)
         {
-            SqlConnection conn = null;
-
-            conn = new SqlConnection(connectionString);
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             string str = "SELECT id FROM application WHERE name=@name";
-            SqlCommand command = new SqlCommand(str, conn);
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@name", name);
 
-            SqlDataReader reader = command.ExecuteReader();
+            NpgsqlDataReader reader = command.ExecuteReader();
+
             reader.Read();
             int id = (int)reader["id"];
             conn.Close();
@@ -43,13 +53,11 @@ namespace SOMIOD.Helpers
 
         public static void createApplication (string name)
         {
-            SqlConnection conn = null;
-
-            conn = new SqlConnection(connectionString);
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             string str = "INSERT INTO application (name, creation_dt) VALUES (@name, @creation_dt)";
-            SqlCommand command = new SqlCommand(str, conn);
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@name", name);
             command.Parameters.AddWithValue("@creation_dt",DateTime.Now);
 
@@ -61,16 +69,14 @@ namespace SOMIOD.Helpers
                 throw new Exception("Error");
             }
         }
-
+        
         public static void deleteApplication(string name)
         {
-            SqlConnection conn = null;
-
-            conn = new SqlConnection(connectionString);
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             string str = "DELETE FROM application WHERE name=@name";
-            SqlCommand command = new SqlCommand(str, conn);
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@name", name);
 
             int rows = command.ExecuteNonQuery();
@@ -83,20 +89,16 @@ namespace SOMIOD.Helpers
 
         public static Models.Application getApplication(String name)
         {
-            Models.Application app = new Models.Application();
-            SqlConnection conn = null;
-
-            conn = new SqlConnection(connectionString);
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             string str = "SELECT * FROM Application (id, name, creation_dt, parent) WHERE name=@name";
-            SqlCommand command = new SqlCommand(str, conn);
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@name", name);
-            SqlDataReader reader = command.ExecuteReader();
+            NpgsqlDataReader reader = command.ExecuteReader();
 
             reader.Read();
-
-            Models.Application a = new Models.Application
+            Models.Application app = new Models.Application
             {
                 Id = (int)reader["id"],
                 Name = (string)reader["name"],
@@ -109,15 +111,12 @@ namespace SOMIOD.Helpers
 
         public static List<Models.Application> GetAllApplications()
         {
-            Models.Application app = new Models.Application();
-            SqlConnection conn = null;
-
-            conn = new SqlConnection(connectionString);
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             string str = "SELECT * FROM Application (id, name, creation_dt, parent)";
-            SqlCommand command = new SqlCommand(str, conn);
-            SqlDataReader reader = command.ExecuteReader();
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
+            NpgsqlDataReader reader = command.ExecuteReader();
 
             List<Models.Application> list = new List<Models.Application>();
             while (reader.Read())
@@ -138,13 +137,11 @@ namespace SOMIOD.Helpers
 
         public static Models.Application updateApplication(string name, string application)
         {
-            SqlConnection conn = null;
-
-            conn = new SqlConnection(connectionString);
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             string str = "UPDATE application SET name=@name WHERE name=@application";
-            SqlCommand command = new SqlCommand(str, conn);
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@name", name);
             command.Parameters.AddWithValue("@application", application);
 
@@ -165,16 +162,14 @@ namespace SOMIOD.Helpers
 
         public static int getContainerId(string name)
         {
-            SqlConnection conn = null;
-
-            conn = new SqlConnection(connectionString);
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             string str = "SELECT id FROM container WHERE name=@name";
-            SqlCommand command = new SqlCommand(str, conn);
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@name", name);
 
-            SqlDataReader reader = command.ExecuteReader();
+            NpgsqlDataReader reader = command.ExecuteReader();
             reader.Read();
 
             int id = (int)reader["id"];
@@ -185,15 +180,13 @@ namespace SOMIOD.Helpers
 
         public static void createContainer(string container_name, string application)
         {
-            SqlConnection conn = null;
-
-            conn = new SqlConnection(connectionString);
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             int parent = getApplicationId(application);
 
             string str = "INSERT INTO container (name, creation_dt, parent) VALUES (@name, @creation_dt, @parent)";
-            SqlCommand command = new SqlCommand(str, conn);
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@name", container_name);
             command.Parameters.AddWithValue("@creation_dt",DateTime.Now);
             command.Parameters.AddWithValue("@parent", parent);
@@ -210,15 +203,13 @@ namespace SOMIOD.Helpers
     
         public static void deleteContainer(string application, string container)
         {
-            SqlConnection conn = null;
-
-            conn = new SqlConnection(connectionString);
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             int parent = getApplicationId(application);
 
             string str = "DELETE FROM container WHERE name=@container && parent=@parent";
-            SqlCommand command = new SqlCommand(str, conn);
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@container", container);
             command.Parameters.AddWithValue("@parent", parent);
 
@@ -232,17 +223,14 @@ namespace SOMIOD.Helpers
 
         public static Models.Container getContainer(string name)
         {
-            Models.Application app = new Models.Application();
-            SqlConnection conn = null;
-
-            conn = new SqlConnection(connectionString);
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             string str = "SELECT * FROM container (id, name, creation_dt, parent) WHERE name=@name";
-            SqlCommand command = new SqlCommand(str, conn);
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@name", name);
 
-            SqlDataReader reader = command.ExecuteReader();
+            NpgsqlDataReader reader = command.ExecuteReader();
 
             Models.Container container = new Models.Container
             {
@@ -258,20 +246,18 @@ namespace SOMIOD.Helpers
 
         public static List<Models.Container> GetContainers(string application)
         {
-            SqlConnection conn = null;
-
-            conn = new SqlConnection(connectionString);
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             int parent = getApplicationId(application);
 
             string str = "SELECT * FROM container WHERE parent=@parent";
-            SqlCommand command = new SqlCommand(str, conn);
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@parent", parent);
 
             List<Models.Container> list = new List<Models.Container>();
 
-            SqlDataReader reader = command.ExecuteReader();
+            NpgsqlDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
                 Models.Container container = new Models.Container
@@ -289,17 +275,15 @@ namespace SOMIOD.Helpers
 
         public static List<Models.Container> GetAllContainers()
         {
-            SqlConnection conn = null;
-
-            conn = new SqlConnection(connectionString);
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             string str = "SELECT * FROM container (id, name, creation_dt, parent)";
-            SqlCommand command = new SqlCommand(str, conn);
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
 
             List<Models.Container> list = new List<Models.Container>();
 
-            SqlDataReader reader = command.ExecuteReader();
+            NpgsqlDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
                 Models.Container container = new Models.Container
@@ -317,22 +301,20 @@ namespace SOMIOD.Helpers
 
         public static Models.Container updateContainer(string name, string application, string container)
         {
-            SqlConnection conn = null;
-
-            conn = new SqlConnection(connectionString);
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             int parent = getApplicationId(application);
 
             string str = "UPDATE container SET name=@name WHERE name=@container && parent=@parent";
-            SqlCommand command = new SqlCommand(str, conn);
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@name", name);
             command.Parameters.AddWithValue("@container", container);
             command.Parameters.AddWithValue("@parent", parent);
 
             int rows = command.ExecuteNonQuery();
-
             conn.Close();
+
             if (rows <= 0)
             {
                 throw new Exception("Error");
@@ -347,15 +329,13 @@ namespace SOMIOD.Helpers
 
         public static void sendData(string content, string app, string container)
         {
-            SqlConnection conn = null;
-
-            conn = new SqlConnection(connectionString);
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            int parent = ;
+            int parent = getContainerId(container);
 
             string str = "INSERT INTO data (content, creation_dt, parent) VALUES (@content, @creation_dt, @parent)";
-            SqlCommand command = new SqlCommand(str, conn);
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@content", content);
             command.Parameters.AddWithValue("@creation_dt", DateTime.Now);
             command.Parameters.AddWithValue("@parent", parent);
@@ -372,15 +352,13 @@ namespace SOMIOD.Helpers
 
         public static void deleteData(string application, string container, int dataId)
        {
-            SqlConnection conn = null;
-
-            conn = new SqlConnection(connectionString);
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             int parent = getApplicationId(application);
 
             string str = "DELETE FROM data WHERE id=@id && parent=@parent";
-            SqlCommand command = new SqlCommand(str, conn);
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@id", dataId);
             command.Parameters.AddWithValue("@parent", parent);
 
@@ -394,19 +372,17 @@ namespace SOMIOD.Helpers
 
         public static Models.Data getData(string application, string container, int dataId)
         {
-            SqlConnection conn = null;
-
-            conn = new SqlConnection(connectionString);
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             int parent = getApplicationId(application);
 
             string str = "SELECT * FROM data WHERE id=@id && parent=@parent";
-            SqlCommand command = new SqlCommand(str, conn);
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@id", dataId);
             command.Parameters.AddWithValue("@parent", parent);
 
-            SqlDataReader reader = command.ExecuteReader();
+            NpgsqlDataReader reader = command.ExecuteReader();
 
             Models.Data data = new Models.Data
             {
@@ -422,17 +398,15 @@ namespace SOMIOD.Helpers
 
         public static List<Models.Data> GetAllDatas()
         {
-            SqlConnection conn = null;
-
-            conn = new SqlConnection(connectionString);
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             string str = "SELECT * FROM data (id, content, creation_dt, parent)";
-            SqlCommand command = new SqlCommand(str, conn);
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
 
             List<Models.Data> list = new List<Models.Data>();
 
-            SqlDataReader reader = command.ExecuteReader();
+            NpgsqlDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
                 Models.Data data = new Models.Data
@@ -450,20 +424,18 @@ namespace SOMIOD.Helpers
 
         public static List<Models.Data> GetDatas(string application, string container)
         {
-            SqlConnection conn = null;
-
-            conn = new SqlConnection(connectionString);
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             int parent = getApplicationId(application);
 
             string str = "SELECT * FROM data WHERE parent=@parent";
-            SqlCommand command = new SqlCommand(str, conn);
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@parent", parent);
 
             List<Models.Data> list = new List<Models.Data>();
 
-            SqlDataReader reader = command.ExecuteReader();
+            NpgsqlDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
                 Models.Data data = new Models.Data
@@ -486,15 +458,13 @@ namespace SOMIOD.Helpers
 
         public static void createSubscription(string name, string eventType, string endPoint, string application, string container)
         {
-            SqlConnection conn = null;
-
-            conn = new SqlConnection(connectionString);
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             int parent = getContainerId(container);
 
             string str = "INSERT INTO subscription (name, event_type, end_point, creation_dt, parent) VALUES (@name, @event_type, @end_point, @creation_dt, @parent)";
-            SqlCommand command = new SqlCommand(str, conn);
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@name", name);
             command.Parameters.AddWithValue("@event_type", eventType);
             command.Parameters.AddWithValue("@end_point", endPoint);
@@ -511,15 +481,13 @@ namespace SOMIOD.Helpers
 
         public static void deleteSubscription(string application, string container, int subscriptionId)
         {
-            SqlConnection conn = null;
-
-            conn = new SqlConnection(connectionString);
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             int parent = getContainerId(container);
 
             string str = "DELETE FROM subscription WHERE id=@id && parent=@parent";
-            SqlCommand command = new SqlCommand(str, conn);
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@id", subscriptionId);
             command.Parameters.AddWithValue("@parent", parent);
 
@@ -533,6 +501,6 @@ namespace SOMIOD.Helpers
         }
 
         #endregion
-
+        
     }
 }

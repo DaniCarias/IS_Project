@@ -17,7 +17,8 @@ using System.Windows.Input;
 using System.Web.UI.WebControls.WebParts;
 using System.Collections;
 using SOMIOD.Helpers;
-
+using System.Diagnostics;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SOMIOD.Controller
 {
@@ -28,7 +29,7 @@ namespace SOMIOD.Controller
         //Cria o BROKEN mosquito
         MqttClient mClient = new MqttClient(IPAddress.Parse("127.0.0.1")); //OR use the broker hostname
 
-
+        
         #region SOMIOD DISCOVER
 
         [HttpGet]
@@ -146,7 +147,7 @@ namespace SOMIOD.Controller
         }
 
         #endregion
-
+        
 
         #region Application
 
@@ -156,8 +157,13 @@ namespace SOMIOD.Controller
         {
             try
             {
+                if (a == null)
+                {
+                    throw new Exception("Invalid application");
+                }
+
                 dbHelper.createApplication(a.Name);
-                return Ok(a);//enviar por XML
+                return Ok(a); //enviar por XML
             }
             catch (Exception ex)
             {
@@ -171,6 +177,11 @@ namespace SOMIOD.Controller
         {
             try
             {
+                if (string.IsNullOrEmpty(app))
+                {
+                    throw new Exception("Invalid application");
+                }
+
                 dbHelper.deleteApplication(app);
                 return Ok();//enviar por XML
             }
@@ -186,6 +197,11 @@ namespace SOMIOD.Controller
         {
             try
             {
+                if (string.IsNullOrEmpty(application))
+                {
+                    throw new Exception("Invalid application");
+                }
+
                 Application app = dbHelper.getApplication(application);
                 return app; //enviar por XML
 
@@ -202,6 +218,16 @@ namespace SOMIOD.Controller
         {
             try
             {
+                if (string.IsNullOrEmpty(application))
+                {
+                    throw new Exception("Application not found");
+                }
+
+                if (string.IsNullOrEmpty(name))
+                {
+                    throw new Exception("Invalid Name");
+                }
+
                 Application app = dbHelper.updateApplication(name, application);
                 return Ok(app);//enviar por XML
             }
@@ -213,7 +239,7 @@ namespace SOMIOD.Controller
 
         #endregion
 
-        
+
         #region Containers
 
         [HttpPost]
@@ -223,6 +249,16 @@ namespace SOMIOD.Controller
 
             try
             {
+                if (string.IsNullOrEmpty(application))
+                {
+                    throw new Exception("Invalid application");
+                }
+
+                if (c == null)
+                {
+                   throw new Exception("Invalid container");
+                }
+
                 dbHelper.createContainer(c.Name, application);
                 return Ok(c);//enviar por XML
             }
@@ -238,6 +274,16 @@ namespace SOMIOD.Controller
         {
             try
             {
+                if (string.IsNullOrEmpty(application))
+                {
+                    throw new Exception("Invalid application");
+                }
+
+                if (string.IsNullOrEmpty(container))
+                {
+                    throw new Exception("Invalid application");
+                }
+
                 dbHelper.deleteContainer(application, container);
                 return Ok();//enviar por XML
             }
@@ -253,6 +299,11 @@ namespace SOMIOD.Controller
         {
             try
             {
+                if (string.IsNullOrEmpty(container))
+                {
+                    throw new Exception("Invalid container");
+                }
+
                 Container cont = dbHelper.getContainer(container); //enviar o application
                 return cont; //enviar por XML
             }
@@ -268,6 +319,21 @@ namespace SOMIOD.Controller
         {
             try
             {
+                if (string.IsNullOrEmpty(application))
+                {
+                    throw new Exception("Invalid application");
+                }
+
+                if (string.IsNullOrEmpty(container))
+                {
+                    throw new Exception("Invalid container");
+                }
+
+                if (string.IsNullOrEmpty(name))
+                {
+                    throw new Exception("Invalid Name");
+                }
+
                 Container c = dbHelper.updateContainer(name, application, container);
                 return Ok(c);//enviar por XML
             }
@@ -284,21 +350,35 @@ namespace SOMIOD.Controller
 
         [HttpPost]
         [Route("{application}/{container}/data")] //Send Data to Broker
-        public IHttpActionResult SendDataToBroker(string application, string container, [FromBody] Data d)
+        public IHttpActionResult SendDataToBroker(string application, string container, [FromBody] Data data)
         {
             try
             {
-                dbHelper.sendData(d.Content, application, container);
+                if (string.IsNullOrEmpty(application))
+                {
+                    throw new Exception("Invalid application");
+                }
+
+                if (string.IsNullOrEmpty(container))
+                {
+                    throw new Exception("Invalid container");
+                }
+
+                if (data == null)
+                {
+                    throw new Exception("Invalid data");
+                }
+
+                dbHelper.sendData(data.Content, application, container);
 
                 if(mClient.IsConnected)
                 {
-                    //string selectedTopic = comboBox1.SelectedItem.ToString();
-                    //string textFromTextBox = textBox1.Text;
+                    
                     //envia a mensagem para o broker com o topico que foi selecionado e a mensagem que foi escrita
-                    mClient.Publish(application, d.Content);
+                    mClient.Publish(application, Encoding.UTF8.GetBytes(data.Content)); //o que é o canal???
                 }
 
-                return Ok(d); //enviar por XML
+                return Ok(data); //enviar por XML
 
             }
             catch (Exception ex)
@@ -313,6 +393,21 @@ namespace SOMIOD.Controller
         {
             try
             {
+                if (string.IsNullOrEmpty(application))
+                {
+                    throw new Exception("Invalid application");
+                }
+
+                if (string.IsNullOrEmpty(container))
+                {
+                    throw new Exception("Invalid container");
+                }
+
+                if (dataId == null)
+                {
+                    throw new Exception("Invalid dataId");
+                }
+
                 dbHelper.deleteData(application, container, dataId);
                 return Ok();//enviar por XML
             }
@@ -328,6 +423,21 @@ namespace SOMIOD.Controller
         {
             try
             {
+                if (string.IsNullOrEmpty(application))
+                {
+                    throw new Exception("Invalid application");
+                }
+
+                if (string.IsNullOrEmpty(container))
+                {
+                    throw new Exception("Invalid container");
+                }
+
+                if (dataId == null)
+                {
+                    throw new Exception("Invalid dataId");
+                }
+
                 Data data = dbHelper.getData(application, container, dataId);
                 return data; //enviar por XML
             }
@@ -344,12 +454,27 @@ namespace SOMIOD.Controller
 
         [HttpPost]
         [Route("{application}/{container}/subscription")] //Create Subscription
-        public IHttpActionResult PostSubscription(string application, string container, [FromBody] Subscription s)
+        public IHttpActionResult PostSubscription(string application, string container, [FromBody] Subscription subs)
         {
             try
             {
-                dbHelper.createSubscription(s.Name, s.EventType, s.Endpoint, application, container);
-                return Ok(s);//enviar por XML
+                if (string.IsNullOrEmpty(application))
+                {
+                    throw new Exception("Invalid application");
+                }
+
+                if (string.IsNullOrEmpty(container))
+                {
+                    throw new Exception("Invalid container");
+                }
+
+                if (subs == null)
+                {
+                    throw new Exception("Invalid subscription");
+                }
+
+                dbHelper.createSubscription(subs.Name, subs.EventType, subs.Endpoint, application, container);
+                return Ok(subs);//enviar por XML
             }
             catch (Exception ex)
             {
@@ -363,6 +488,21 @@ namespace SOMIOD.Controller
         {
             try
             {
+                if (string.IsNullOrEmpty(application))
+                {
+                    throw new Exception("Invalid application");
+                }
+
+                if (string.IsNullOrEmpty(container))
+                {
+                    throw new Exception("Invalid container");
+                }
+
+                if (subscriptionId == null)
+                {
+                    throw new Exception("Invalid subscriptionId");
+                }
+
                 dbHelper.deleteSubscription(application, container, subscriptionId);
                 return Ok();//enviar por XML
             }
@@ -373,8 +513,6 @@ namespace SOMIOD.Controller
         }
 
         #endregion
-
-
 
     }
 }

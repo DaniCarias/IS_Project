@@ -2,4 +2,6 @@ packages
 .vs
 .idea
 Lamp/obj/
+SOMIOD/bin/
 SOMIOD/obj/
+SOMIOD/SOMIOD.csproj
