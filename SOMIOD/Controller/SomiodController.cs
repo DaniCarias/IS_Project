@@ -153,16 +153,16 @@ namespace SOMIOD.Controller
 
         [HttpPost]
         [Route("")] //Create Application - DONE
-        public IHttpActionResult PostApplication([FromBody] Application a)
+        public IHttpActionResult PostApplication([FromBody] string name)
         {
             try
             {
-                if (a == null)
+                if (string.IsNullOrEmpty(name))
                 {
-                    return BadRequest("Invalid application");
+                    return BadRequest("Invalid name");
                 }
 
-                dbHelper.createApplication(a.Name);
+                dbHelper.createApplication(name);
                 return Ok("Application created successfully");
             }
             catch (Exception ex)
@@ -179,7 +179,7 @@ namespace SOMIOD.Controller
             {
                 if (string.IsNullOrEmpty(application))
                 {
-                    return BadRequest("Invalid application");
+                    return BadRequest("Invalid name");
                 }
 
                 dbHelper.deleteApplication(application);
@@ -223,7 +223,7 @@ namespace SOMIOD.Controller
 
         [HttpPost]
         [Route("{application}")] //Create Container - DONE
-        public IHttpActionResult PostContainers(string application, [FromBody] Container c)
+        public IHttpActionResult PostContainers(string application, [FromBody] string name)
         {
 
             try
@@ -233,12 +233,12 @@ namespace SOMIOD.Controller
                     return BadRequest("Invalid application");
                 }
 
-                if (c == null)
+                if (string.IsNullOrEmpty(name))
                 {
                    return BadRequest("Invalid container");
                 }
 
-                dbHelper.createContainer(c.Name, application);
+                dbHelper.createContainer(name, application);
                 return Ok("Container created successfully");
             }
             catch (Exception ex)
@@ -308,8 +308,8 @@ namespace SOMIOD.Controller
         #region Data
 
         [HttpPost]
-        [Route("{application}/{container}/data")] //Send Data to Broker
-        public IHttpActionResult SendDataToBroker(string application, string container, [FromBody] Data data)
+        [Route("{application}/{container}/data")] //Send Data to Broker - DONE
+        public IHttpActionResult SendDataToBroker(string application, string container, [FromBody] string content)
         {
             try
             {
@@ -323,26 +323,21 @@ namespace SOMIOD.Controller
                     return BadRequest("Invalid container");
                 }
 
-                if (data == null)
+                if (string.IsNullOrEmpty(content))
                 {
                     return BadRequest("Invalid data");
                 }
 
-                if (string.IsNullOrEmpty(data.Content))
-                {
-                    return BadRequest("Invalid content");
-                }
-
-                dbHelper.sendData(data.Content, application, container);
+                dbHelper.sendData(content, application, container);
 
                 if(mClient.IsConnected)
                 {
                     
                     //envia a mensagem para o broker com o topico que foi selecionado e a mensagem que foi escrita
-                    mClient.Publish(application, Encoding.UTF8.GetBytes(data.Content)); //o que é o canal???
+                    mClient.Publish(application, Encoding.UTF8.GetBytes(content)); //o que é o canal???
                 }
 
-                return Ok("Data created successfully"); 
+                return Ok("Data created successfully");
 
             }
             catch (Exception ex)
@@ -352,7 +347,7 @@ namespace SOMIOD.Controller
         }
 
         [HttpDelete]
-        [Route("{application}/{container}/data/{dataId}")] //Delete Data
+        [Route("{application}/{container}/data/{dataId}")] //Delete Data - DONE
         public IHttpActionResult DeleteData(string application, string container, int dataId)
         {
             try
@@ -382,7 +377,7 @@ namespace SOMIOD.Controller
         }
 
         [HttpPatch]
-        [Route("{application}/{container}/data/{dataId}")] //Update Data content
+        [Route("{application}/{container}/data/{dataId}")] //Update Data content - DONE
         public IHttpActionResult UpdateData(string application, string container, int dataId, string content) //content in query string on the URL
         {
             try
