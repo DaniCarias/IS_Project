@@ -13,7 +13,7 @@ namespace SOMIOD.Models
     public class Subscription
     {
         [XmlElement(ElementName = "Id")]
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         [XmlElement(ElementName = "Name")]
         public string Name { get; set; }
@@ -22,7 +22,7 @@ namespace SOMIOD.Models
         public DateTime Creation_dt { get; set; }
 
         [XmlElement(ElementName = "Parent")]
-        public int Parent { get; set; } //Container id
+        public long Parent { get; set; } //Container id
 
         [XmlElement(ElementName = "EventType")]
         public string EventType { get; set; }
@@ -33,7 +33,7 @@ namespace SOMIOD.Models
 
         public Subscription() { }
 
-        public Subscription(int id, string name, DateTime creationDate, int parent, string eventType, string endpoint)
+        public Subscription(long id, string name, DateTime creationDate, long parent, string eventType, string endpoint)
         {
             Id = id;
             Name = name;

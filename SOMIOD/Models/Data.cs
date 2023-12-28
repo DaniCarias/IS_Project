@@ -10,7 +10,7 @@ namespace SOMIOD.Models
     public class Data
     {
         [XmlElement(ElementName = "Id")]
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         [XmlElement(ElementName = "Content")]
         public string Content { get; set; }
@@ -19,12 +19,12 @@ namespace SOMIOD.Models
         public DateTime Creation_dt { get; set; }
 
         [XmlElement(ElementName = "Parent")]
-        public int Parent { get; set; }
+        public long Parent { get; set; }
 
 
         public Data() { }
 
-        public Data(int id, string content, DateTime creationDate, int parent)
+        public Data(long id, string content, DateTime creationDate, long parent)
         {
             {
                 Id = id;

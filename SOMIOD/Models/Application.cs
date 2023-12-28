@@ -10,7 +10,7 @@ namespace SOMIOD.Models
     public class Application
     {
         [XmlElement(ElementName = "Id")]
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         [XmlElement(ElementName = "Name")]
         public string Name { get; set; }
@@ -21,7 +21,7 @@ namespace SOMIOD.Models
 
         public Application() { }
 
-        public Application(int id, string name, DateTime creationDate)
+        public Application(long id, string name, DateTime creationDate)
         {
             Id = id;
             Name = name;
