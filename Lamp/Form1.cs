@@ -32,7 +32,7 @@ namespace Lamp
             {
                 if (img != null)
                 {
-                    this.lamp_photo.Image = img;
+                    this.lamp_photo = Image.FromFile(img);
                 }
             }
             catch (Exception ex)
