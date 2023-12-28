@@ -159,7 +159,7 @@ namespace SOMIOD.Controller
             {
                 if (a == null)
                 {
-                    throw new Exception("Invalid application");
+                    return BadRequest("Invalid application");
                 }
 
                 dbHelper.createApplication(a.Name);
@@ -179,7 +179,7 @@ namespace SOMIOD.Controller
             {
                 if (string.IsNullOrEmpty(application))
                 {
-                    throw new Exception("Invalid application");
+                    return BadRequest("Invalid application");
                 }
 
                 dbHelper.deleteApplication(application);
@@ -199,12 +199,12 @@ namespace SOMIOD.Controller
             {
                 if (string.IsNullOrEmpty(application))
                 {
-                    throw new Exception("Application not found");
+                    return BadRequest("Application not found");
                 }
 
                 if (string.IsNullOrEmpty(name))
                 {
-                    throw new Exception("Invalid Name");
+                    return BadRequest("Invalid Name");
                 }
 
                 Application app = dbHelper.updateApplication(name, application);
@@ -230,12 +230,12 @@ namespace SOMIOD.Controller
             {
                 if (string.IsNullOrEmpty(application))
                 {
-                    throw new Exception("Invalid application");
+                    return BadRequest("Invalid application");
                 }
 
                 if (c == null)
                 {
-                   throw new Exception("Invalid container");
+                   return BadRequest("Invalid container");
                 }
 
                 dbHelper.createContainer(c.Name, application);
@@ -255,12 +255,12 @@ namespace SOMIOD.Controller
             {
                 if (string.IsNullOrEmpty(application))
                 {
-                    throw new Exception("Invalid application");
+                    return BadRequest("Invalid application");
                 }
 
                 if (string.IsNullOrEmpty(container))
                 {
-                    throw new Exception("Invalid application");
+                    return BadRequest("Invalid Container");
                 }
 
                 dbHelper.deleteContainer(application, container);
@@ -280,17 +280,17 @@ namespace SOMIOD.Controller
             {
                 if (string.IsNullOrEmpty(application))
                 {
-                    throw new Exception("Invalid application");
+                    return BadRequest("Invalid application");
                 }
 
                 if (string.IsNullOrEmpty(container))
                 {
-                    throw new Exception("Invalid container");
+                    return BadRequest("Invalid container");
                 }
 
                 if (string.IsNullOrEmpty(name))
                 {
-                    throw new Exception("Invalid Name");
+                    return BadRequest("Invalid Name");
                 }
 
                 Container c = dbHelper.updateContainer(name, application, container);
@@ -315,17 +315,17 @@ namespace SOMIOD.Controller
             {
                 if (string.IsNullOrEmpty(application))
                 {
-                    throw new Exception("Invalid application");
+                    return BadRequest("Invalid application");
                 }
 
                 if (string.IsNullOrEmpty(container))
                 {
-                    throw new Exception("Invalid container");
+                    return BadRequest("Invalid container");
                 }
 
                 if (data == null)
                 {
-                    throw new Exception("Invalid data");
+                    return BadRequest("Invalid data");
                 }
 
                 dbHelper.sendData(data.Content, application, container);
@@ -354,17 +354,17 @@ namespace SOMIOD.Controller
             {
                 if (string.IsNullOrEmpty(application))
                 {
-                    throw new Exception("Invalid application");
+                    return BadRequest("Invalid application");
                 }
 
                 if (string.IsNullOrEmpty(container))
                 {
-                    throw new Exception("Invalid container");
+                    return BadRequest("Invalid container");
                 }
 
                 if (dataId == null)
                 {
-                    throw new Exception("Invalid dataId");
+                    return BadRequest("Invalid dataId");
                 }
 
                 dbHelper.deleteData(application, container, dataId);
@@ -384,17 +384,17 @@ namespace SOMIOD.Controller
             {
                 if (string.IsNullOrEmpty(application))
                 {
-                    throw new Exception("Invalid application");
+                    return BadRequest("Invalid application");
                 }
 
                 if (string.IsNullOrEmpty(container))
                 {
-                    throw new Exception("Invalid container");
+                    return BadRequest("Invalid container");
                 }
 
                 if (dataId == null)
                 {
-                    throw new Exception("Invalid dataId");
+                    return BadRequest("Invalid dataId");
                 }
 
                 Data data = dbHelper.getData(application, container, dataId);
@@ -419,17 +419,17 @@ namespace SOMIOD.Controller
             {
                 if (string.IsNullOrEmpty(application))
                 {
-                    throw new Exception("Invalid application");
+                    return BadRequest("Invalid application");
                 }
 
                 if (string.IsNullOrEmpty(container))
                 {
-                    throw new Exception("Invalid container");
+                    return BadRequest("Invalid container");
                 }
 
                 if (subs == null)
                 {
-                    throw new Exception("Invalid subscription");
+                    return BadRequest("Invalid subscription");
                 }
 
                 dbHelper.createSubscription(subs.Name, subs.EventType, subs.Endpoint, application, container);
@@ -449,17 +449,17 @@ namespace SOMIOD.Controller
             {
                 if (string.IsNullOrEmpty(application))
                 {
-                    throw new Exception("Invalid application");
+                    return BadRequest("Invalid application");
                 }
 
                 if (string.IsNullOrEmpty(container))
                 {
-                    throw new Exception("Invalid container");
+                    return BadRequest("Invalid container");
                 }
 
                 if (subscriptionId == null)
                 {
-                    throw new Exception("Invalid subscriptionId");
+                    return BadRequest("Invalid subscriptionId");
                 }
 
                 dbHelper.deleteSubscription(application, container, subscriptionId);

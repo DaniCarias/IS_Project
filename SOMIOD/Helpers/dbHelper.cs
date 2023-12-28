@@ -39,7 +39,7 @@ namespace SOMIOD.Helpers
             command.Parameters.AddWithValue("@name", name);
 
             NpgsqlDataReader reader = command.ExecuteReader();
-            //reader.Read();
+            reader.Read();
 
             int id = (int)reader["id"];
             conn.Close();
