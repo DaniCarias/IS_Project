@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using SOMIOD.Models;
 using System;
 using System.Collections.Generic;
@@ -29,7 +29,7 @@ namespace SOMIOD.Helpers
 
         #region Applications
 
-        public static int getApplicationId(string name)
+        public static long GetApplicationId(string name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -39,9 +39,11 @@ namespace SOMIOD.Helpers
             command.Parameters.AddWithValue("@name", name);
 
             NpgsqlDataReader reader = command.ExecuteReader();
-            reader.Read();
-
-            int id = (int)reader["id"];
+            if (!reader.HasRows)
+                throw new Exception("Application with the requested ID does not exist!");
+            
+            long id = reader.GetInt64(0);
+            
             conn.Close();
 
             return id;
@@ -178,7 +180,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            int parent = getApplicationId(application);
+            long parent = GetApplicationId(application);
 
             string str = "INSERT INTO container (id, name, creation_dt, parent) VALUES (@id, @name, @creation_dt, @parent)";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
@@ -202,7 +204,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            int parent = getApplicationId(application);
+            long parent = GetApplicationId(application);
 
             string str = "DELETE FROM container WHERE name ILIKE @container AND parent = @parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
@@ -222,7 +224,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            int parent = getApplicationId(application);
+            long parent = GetApplicationId(application);
 
             string str = "SELECT * FROM container WHERE name ILIKE @name AND parent = @parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
@@ -248,7 +250,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            int parent = getApplicationId(application);
+            long parent = GetApplicationId(application);
 
             string str = "SELECT * FROM container WHERE parent=@parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
@@ -303,7 +305,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            int parent = getApplicationId(application);
+            long parent = GetApplicationId(application);
 
             string str = "UPDATE container SET name=@name WHERE name ILIKE @container AND parent=@parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
@@ -356,7 +358,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            int parent = getApplicationId(application);
+            long parent = GetApplicationId(application);
 
             string str = "DELETE FROM data WHERE id=@id AND parent=@parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
@@ -376,7 +378,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            int parent = getApplicationId(application);
+            long parent = GetApplicationId(application);
 
             string str = "SELECT * FROM data WHERE id=@id AND parent=@parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
@@ -428,7 +430,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            int parent = getApplicationId(application);
+            long parent = GetApplicationId(application);
 
             string str = "SELECT * FROM data WHERE parent=@parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
