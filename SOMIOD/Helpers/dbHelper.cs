@@ -41,9 +41,11 @@ namespace SOMIOD.Helpers
             NpgsqlDataReader reader = command.ExecuteReader();
             if (!reader.HasRows)
                 throw new Exception("Application with the requested ID does not exist!");
-            
-            long id = reader.GetInt64(0);
-            
+
+            reader.Read();
+
+            long id = (long)reader["id"];
+
             conn.Close();
 
             return id;
@@ -54,9 +56,11 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            string str = "INSERT INTO application (name) VALUES (@name)";
+            string str = "INSERT INTO application (id, name, creation_dt) VALUES (@id, @name, @creation_dt)";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
+            command.Parameters.AddWithValue("@id", 1);
             command.Parameters.AddWithValue("@name", name);
+            command.Parameters.AddWithValue("@creation_dt", DateTime.Now);
 
             int rows = command.ExecuteNonQuery();
             conn.Close();
@@ -137,10 +141,10 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            string str = "UPDATE application SET name = @new_name WHERE name ILIKE @old_name"; //SE FOR HARD CODED FUNCIONA - PAIR_PROGRAMMING
+            string str = "UPDATE application SET name = 'teste' WHERE name ILIKE 'Lamp'"; //SE FOR HARD CODED FUNCIONA - PAIR_PROGRAMMING
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
-            command.Parameters.AddWithValue("@new_name", newName);
-            command.Parameters.AddWithValue("@old_name", oldName);
+            //command.Parameters.AddWithValue("@new_name", newName);
+            //command.Parameters.AddWithValue("@old_name", oldName);
 
             int rows = command.ExecuteNonQuery();
 
@@ -157,7 +161,7 @@ namespace SOMIOD.Helpers
 
         #region Containers
 
-        public static int getContainerId(string name)
+        public static long getContainerId(string name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -169,7 +173,7 @@ namespace SOMIOD.Helpers
             NpgsqlDataReader reader = command.ExecuteReader();
             reader.Read();
 
-            int id = (int)reader["id"];
+            long id = (long)reader["id"];
 
             conn.Close();
             return id;
@@ -184,7 +188,7 @@ namespace SOMIOD.Helpers
 
             string str = "INSERT INTO container (id, name, creation_dt, parent) VALUES (@id, @name, @creation_dt, @parent)";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
-            command.Parameters.AddWithValue("@id", 2);
+            command.Parameters.AddWithValue("@id", 1);
             command.Parameters.AddWithValue("@name", container_name);
             command.Parameters.AddWithValue("@creation_dt",DateTime.Now);
             command.Parameters.AddWithValue("@parent", parent);
@@ -335,7 +339,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            int parent = getContainerId(container);
+            long parent = getContainerId(container);
 
             string str = "INSERT INTO data (content, creation_dt, parent) VALUES (@content, @creation_dt, @parent)";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
@@ -464,7 +468,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            int parent = getContainerId(container);
+            long parent = getContainerId(container);
 
             string str = "INSERT INTO subscription (name, event_type, end_point, creation_dt, parent) VALUES (@name, @event_type, @end_point, @creation_dt, @parent)";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
@@ -487,7 +491,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            int parent = getContainerId(container);
+            long parent = getContainerId(container);
 
             string str = "DELETE FROM subscription WHERE id=@id AND parent=@parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
