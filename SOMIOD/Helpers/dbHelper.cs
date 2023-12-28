@@ -12,6 +12,7 @@ using System.Web.UI.WebControls;
 using System.Xml.Linq;
 using static System.Net.Mime.MediaTypeNames;
 using Npgsql;
+using System.Collections;
 
 namespace SOMIOD.Helpers
 {
@@ -33,13 +34,13 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            string str = "SELECT id FROM application WHERE name=@name";
+            string str = "SELECT id FROM application WHERE name ILIKE @name";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@name", name);
 
             NpgsqlDataReader reader = command.ExecuteReader();
+            //reader.Read();
 
-            reader.Read();
             int id = (int)reader["id"];
             conn.Close();
 
@@ -51,10 +52,9 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            string str = "INSERT INTO application (name, creation_dt) VALUES (@name, @creation_dt)";
+            string str = "INSERT INTO application (name) VALUES (@name)";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@name", name);
-            command.Parameters.AddWithValue("@creation_dt",DateTime.Now);
 
             int rows = command.ExecuteNonQuery();
             conn.Close();
@@ -70,7 +70,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            string str = "DELETE FROM application WHERE name=@name";
+            string str = "DELETE FROM application WHERE name ILIKE @name";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@name", name);
 
@@ -87,7 +87,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            string str = "SELECT * FROM Application (id, name, creation_dt, parent) WHERE name=@name";
+            string str = "SELECT * FROM Application WHERE name ILIKE @name";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@name", name);
             NpgsqlDataReader reader = command.ExecuteReader();
@@ -109,7 +109,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            string str = "SELECT * FROM Application (id, name, creation_dt, parent)";
+            string str = "SELECT * FROM Application";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             NpgsqlDataReader reader = command.ExecuteReader();
 
@@ -130,15 +130,15 @@ namespace SOMIOD.Helpers
             return list;
         }
 
-        public static Models.Application updateApplication(string name, string application)
+        public static Models.Application updateApplication(string newName, string oldName) //REVER PAIR PROGRAMMING
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            string str = "UPDATE application SET name=@name WHERE name=@application";
+            string str = "UPDATE application SET name = @new_name WHERE name ILIKE @old_name"; //SE FOR HARD CODED FUNCIONA - PAIR_PROGRAMMING
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
-            command.Parameters.AddWithValue("@name", name);
-            command.Parameters.AddWithValue("@application", application);
+            command.Parameters.AddWithValue("@new_name", newName);
+            command.Parameters.AddWithValue("@old_name", oldName);
 
             int rows = command.ExecuteNonQuery();
 
@@ -147,7 +147,7 @@ namespace SOMIOD.Helpers
             {
                 throw new Exception("Error");
             }
-            return getApplication(name);
+            return getApplication(newName);
         }
 
         #endregion
@@ -160,7 +160,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            string str = "SELECT id FROM container WHERE name=@name";
+            string str = "SELECT id FROM container WHERE name ILIKE @name";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@name", name);
 
@@ -180,8 +180,9 @@ namespace SOMIOD.Helpers
 
             int parent = getApplicationId(application);
 
-            string str = "INSERT INTO container (name, creation_dt, parent) VALUES (@name, @creation_dt, @parent)";
+            string str = "INSERT INTO container (id, name, creation_dt, parent) VALUES (@id, @name, @creation_dt, @parent)";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
+            command.Parameters.AddWithValue("@id", 2);
             command.Parameters.AddWithValue("@name", container_name);
             command.Parameters.AddWithValue("@creation_dt",DateTime.Now);
             command.Parameters.AddWithValue("@parent", parent);
@@ -194,7 +195,7 @@ namespace SOMIOD.Helpers
                throw new Exception("Error");
             }
 
-        }
+        } 
     
         public static void deleteContainer(string application, string container)
         {
@@ -203,7 +204,7 @@ namespace SOMIOD.Helpers
 
             int parent = getApplicationId(application);
 
-            string str = "DELETE FROM container WHERE name=@container && parent=@parent";
+            string str = "DELETE FROM container WHERE name ILIKE @container AND parent = @parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@container", container);
             command.Parameters.AddWithValue("@parent", parent);
@@ -216,14 +217,17 @@ namespace SOMIOD.Helpers
             }
         }
 
-        public static Models.Container getContainer(string name)
+        public static Models.Container getContainer(string application, string name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            string str = "SELECT * FROM container (id, name, creation_dt, parent) WHERE name=@name";
+            int parent = getApplicationId(application);
+
+            string str = "SELECT * FROM container WHERE name ILIKE @name AND parent = @parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@name", name);
+            command.Parameters.AddWithValue("@parent", parent);
 
             NpgsqlDataReader reader = command.ExecuteReader();
 
@@ -273,7 +277,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            string str = "SELECT * FROM container (id, name, creation_dt, parent)";
+            string str = "SELECT * FROM container";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
 
             List<Models.Container> list = new List<Models.Container>();
@@ -294,14 +298,14 @@ namespace SOMIOD.Helpers
             return list;
         }
 
-        public static Models.Container updateContainer(string name, string application, string container)
+        public static Models.Container updateContainer(string name, string application, string container) //REVER PAIR PROGRAMMING
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             int parent = getApplicationId(application);
 
-            string str = "UPDATE container SET name=@name WHERE name=@container && parent=@parent";
+            string str = "UPDATE container SET name=@name WHERE name ILIKE @container AND parent=@parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@name", name);
             command.Parameters.AddWithValue("@container", container);
@@ -314,7 +318,9 @@ namespace SOMIOD.Helpers
             {
                 throw new Exception("Error");
             }
-            return getContainer(name);
+
+            Models.Container cont = dbHelper.getContainer(application, container);
+            return cont; //enviar por XML
         }
 
         #endregion
@@ -352,7 +358,7 @@ namespace SOMIOD.Helpers
 
             int parent = getApplicationId(application);
 
-            string str = "DELETE FROM data WHERE id=@id && parent=@parent";
+            string str = "DELETE FROM data WHERE id=@id AND parent=@parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@id", dataId);
             command.Parameters.AddWithValue("@parent", parent);
@@ -372,7 +378,7 @@ namespace SOMIOD.Helpers
 
             int parent = getApplicationId(application);
 
-            string str = "SELECT * FROM data WHERE id=@id && parent=@parent";
+            string str = "SELECT * FROM data WHERE id=@id AND parent=@parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@id", dataId);
             command.Parameters.AddWithValue("@parent", parent);
@@ -396,7 +402,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            string str = "SELECT * FROM data (id, content, creation_dt, parent)";
+            string str = "SELECT * FROM data";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
 
             List<Models.Data> list = new List<Models.Data>();
@@ -481,7 +487,7 @@ namespace SOMIOD.Helpers
 
             int parent = getContainerId(container);
 
-            string str = "DELETE FROM subscription WHERE id=@id && parent=@parent";
+            string str = "DELETE FROM subscription WHERE id=@id AND parent=@parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@id", subscriptionId);
             command.Parameters.AddWithValue("@parent", parent);
