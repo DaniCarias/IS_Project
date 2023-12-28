@@ -29,14 +29,37 @@ namespace SOMIOD.Helpers
 
         #region Applications
 
-        public static long GetApplicationId(string name)
+        public static Boolean isApplicationExist(string application_name)
         {
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
+            conn.Open();
+
+            string str = "SELECT * FROM application WHERE name ILIKE @name";
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
+            command.Parameters.AddWithValue("@name", application_name);
+
+            NpgsqlDataReader reader = command.ExecuteReader();
+            Boolean exists = reader.HasRows;
+
+            conn.Close();
+            return exists;
+        }
+
+        public static long GetApplicationId(string application_name)
+        {
+            Boolean exists = isApplicationExist(application_name);
+
+            if (!exists)
+            {
+                throw new Exception("Application do not exists");
+            }
+
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             string str = "SELECT id FROM application WHERE name ILIKE @name";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
-            command.Parameters.AddWithValue("@name", name);
+            command.Parameters.AddWithValue("@name", application_name);
 
             NpgsqlDataReader reader = command.ExecuteReader();
             if (!reader.HasRows)
@@ -56,11 +79,9 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            string str = "INSERT INTO application (id, name, creation_dt) VALUES (@id, @name, @creation_dt)";
+            string str = "INSERT INTO application (name) VALUES (@name)";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
-            command.Parameters.AddWithValue("@id", 1);
             command.Parameters.AddWithValue("@name", name);
-            command.Parameters.AddWithValue("@creation_dt", DateTime.Now);
 
             int rows = command.ExecuteNonQuery();
             conn.Close();
@@ -99,14 +120,20 @@ namespace SOMIOD.Helpers
             NpgsqlDataReader reader = command.ExecuteReader();
 
             reader.Read();
+
+            long id = (long)reader["id"];
+            string namesss = (string)reader["name"];
+            DateTime creation_dt = (DateTime)reader["creation_dt"];
+
             Models.Application app = new Models.Application
             {
-                Id = (int)reader["id"],
+                Id = (long)reader["id"],
                 Name = (string)reader["name"],
                 Creation_dt = (DateTime)reader["creation_dt"],
             };
 
             reader.Close();
+            conn.Close();
             return app;
         }
 
@@ -125,7 +152,7 @@ namespace SOMIOD.Helpers
 
                 Models.Application a = new Models.Application
                 {
-                    Id = (int)reader["id"],
+                    Id = (long)reader["id"],
                     Name = (string)reader["name"],
                     Creation_dt = (DateTime)reader["creation_dt"],
                 };
@@ -133,6 +160,7 @@ namespace SOMIOD.Helpers
 
             }
             reader.Close();
+            conn.Close();
             return list;
         }
 
@@ -141,10 +169,10 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            string str = "UPDATE application SET name = 'teste' WHERE name ILIKE 'Lamp'"; //SE FOR HARD CODED FUNCIONA - PAIR_PROGRAMMING
+            string str = "UPDATE application SET name = @new_name WHERE name ILIKE @old_name"; //SE FOR HARD CODED FUNCIONA - PAIR_PROGRAMMING
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
-            //command.Parameters.AddWithValue("@new_name", newName);
-            //command.Parameters.AddWithValue("@old_name", oldName);
+            command.Parameters.AddWithValue("@new_name", newName);
+            command.Parameters.AddWithValue("@old_name", oldName);
 
             int rows = command.ExecuteNonQuery();
 
@@ -161,14 +189,37 @@ namespace SOMIOD.Helpers
 
         #region Containers
 
-        public static long GetContainerId(string name)
+        public static Boolean isContainerExist(string application_name)
         {
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
+            conn.Open();
+
+            string str = "SELECT * FROM container WHERE name ILIKE @name";
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
+            command.Parameters.AddWithValue("@name", application_name);
+
+            NpgsqlDataReader reader = command.ExecuteReader();
+            Boolean exists = reader.HasRows;
+
+            conn.Close();
+            return exists;
+        }
+
+        public static long GetContainerId(string container_name)
+        {
+            Boolean exists = isContainerExist(container_name);
+
+            if (!exists)
+            {
+                throw new Exception("Container do not exists");
+            }
+
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             string str = "SELECT id FROM container WHERE name ILIKE @name";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
-            command.Parameters.AddWithValue("@name", name);
+            command.Parameters.AddWithValue("@name", container_name);
 
             NpgsqlDataReader reader = command.ExecuteReader();
             reader.Read();
@@ -186,11 +237,9 @@ namespace SOMIOD.Helpers
 
             long parent = GetApplicationId(application);
 
-            string str = "INSERT INTO container (id, name, creation_dt, parent) VALUES (@id, @name, @creation_dt, @parent)";
+            string str = "INSERT INTO container (name, parent) VALUES (@name, @parent)";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
-            command.Parameters.AddWithValue("@id", 1);
             command.Parameters.AddWithValue("@name", container_name);
-            command.Parameters.AddWithValue("@creation_dt",DateTime.Now);
             command.Parameters.AddWithValue("@parent", parent);
 
             int rows = command.ExecuteNonQuery();
@@ -236,16 +285,19 @@ namespace SOMIOD.Helpers
             command.Parameters.AddWithValue("@parent", parent);
 
             NpgsqlDataReader reader = command.ExecuteReader();
+            reader.Read();
 
             Models.Container container = new Models.Container
             {
-                Id = (int)reader["id"],
+                Id = (long)reader["id"],
                 Name = (string)reader["name"],
                 Creation_dt = (DateTime)reader["creation_dt"],
-                Parent = (int)reader["parent"]
+                Parent = (long)reader["parent"]
             };
 
             reader.Close();
+            conn.Close();
+
             return container;
         }
 
@@ -267,14 +319,15 @@ namespace SOMIOD.Helpers
             {
                 Models.Container container = new Models.Container
                 {
-                    Id = (int)reader["id"],
+                    Id = (long)reader["id"],
                     Name = (string)reader["name"],
                     Creation_dt = (DateTime)reader["creation_dt"],
-                    Parent = (int)reader["parent"]
+                    Parent = (long)reader["parent"]
                 };
                 list.Add(container);
             }
             reader.Close();
+            conn.Close();
             return list;
         }
 
@@ -293,18 +346,19 @@ namespace SOMIOD.Helpers
             {
                 Models.Container container = new Models.Container
                 {
-                    Id = (int)reader["id"],
+                    Id = (long)reader["id"],
                     Name = (string)reader["name"],
                     Creation_dt = (DateTime)reader["creation_dt"],
-                    Parent = (int)reader["parent"]
+                    Parent = (long)reader["parent"]
                 };
                 list.Add(container);
             }
             reader.Close();
+            conn.Close();
             return list;
         }
 
-        public static Models.Container updateContainer(string name, string application, string container) //REVER PAIR PROGRAMMING
+        public static Models.Container updateContainer(string new_container, string application, string old_container)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -313,8 +367,8 @@ namespace SOMIOD.Helpers
 
             string str = "UPDATE container SET name=@name WHERE name ILIKE @container AND parent=@parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
-            command.Parameters.AddWithValue("@name", name);
-            command.Parameters.AddWithValue("@container", container);
+            command.Parameters.AddWithValue("@name", new_container);
+            command.Parameters.AddWithValue("@container", old_container);
             command.Parameters.AddWithValue("@parent", parent);
 
             int rows = command.ExecuteNonQuery();
@@ -325,7 +379,7 @@ namespace SOMIOD.Helpers
                 throw new Exception("Error");
             }
 
-            Models.Container cont = dbHelper.getContainer(application, container);
+            Models.Container cont = dbHelper.getContainer(application, new_container);
             return cont; //enviar por XML
         }
 
@@ -382,7 +436,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            long parent = GetApplicationId(application);
+            long parent = GetContainerId(container);
 
             string str = "SELECT * FROM data WHERE id=@id AND parent=@parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
@@ -390,16 +444,18 @@ namespace SOMIOD.Helpers
             command.Parameters.AddWithValue("@parent", parent);
 
             NpgsqlDataReader reader = command.ExecuteReader();
+            reader.Read();
 
             Models.Data data = new Models.Data
             {
-                Id = (int)reader["id"],
+                Id = (long)reader["id"],
                 Content = (string)reader["content"],
                 Creation_dt = (DateTime)reader["creation_dt"],
-                Parent = (int)reader["parent"]
+                Parent = (long)reader["parent"]
             };
 
             reader.Close();
+            conn.Close();
             return data;
         }
 
@@ -418,14 +474,15 @@ namespace SOMIOD.Helpers
             {
                 Models.Data data = new Models.Data
                 {
-                    Id = (int)reader["id"],
+                    Id = (long)reader["id"],
                     Content = (string)reader["content"],
                     Creation_dt = (DateTime)reader["creation_dt"],
-                    Parent = (int)reader["parent"]
+                    Parent = (long)reader["parent"]
                 };
                 list.Add(data);
             }
             reader.Close();
+            conn.Close();
             return list;
         }
 
@@ -447,15 +504,41 @@ namespace SOMIOD.Helpers
             {
                 Models.Data data = new Models.Data
                 {
-                    Id = (int)reader["id"],
+                    Id = (long)reader["id"],
                     Content = (string)reader["content"],
                     Creation_dt = (DateTime)reader["creation_dt"],
-                    Parent = (int)reader["parent"]
+                    Parent = (long)reader["parent"]
                 };
                 list.Add(data);
             }
             reader.Close();
+            conn.Close();
             return list;
+        }
+
+        public static Models.Data updateData(string application, string container, int dataId, string new_content)
+        {
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
+            conn.Open();
+
+            long parent = GetContainerId(container);
+
+            string str = "UPDATE data SET content = @new_content WHERE id=@id AND parent=@parent";
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
+            command.Parameters.AddWithValue("@new_content", new_content);
+            command.Parameters.AddWithValue("@id", dataId);
+            command.Parameters.AddWithValue("@parent", parent);
+
+            int rows = command.ExecuteNonQuery();
+            conn.Close();
+
+            if (rows <= 0)
+            {
+                throw new Exception("Error");
+            }
+
+            Models.Data data = dbHelper.getData(application, container, dataId);
+            return data; //enviar por XML
         }
 
         #endregion

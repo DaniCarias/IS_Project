@@ -21,6 +21,7 @@ using System.Diagnostics;
 using static System.Net.Mime.MediaTypeNames;
 using Amazon.Auth.AccessControlPolicy;
 using static System.Net.WebRequestMethods;
+using System.Runtime.Remoting.Contexts;
 
 namespace SOMIOD.Controller
 {
@@ -47,13 +48,13 @@ namespace SOMIOD.Controller
                     {
                         case "application":
                             List<Application> applications = dbHelper.GetAllApplications();
-                            return Ok(applications); //enviar por XML
+                            return Ok(applications); 
                         case "container":
                             List<Container> containers = dbHelper.GetAllContainers();
-                            return Ok(containers); //enviar por XML
+                            return Ok(containers); 
                         case "data":
                             List<Data> datas = dbHelper.GetAllDatas();
-                            return Ok(datas); //enviar por XML
+                            return Ok(datas); 
                         //case subscription:
                         default:
                             return BadRequest("Wrong Header");
@@ -72,7 +73,7 @@ namespace SOMIOD.Controller
         }
 
         [HttpGet]
-        [Route("{application}")] //Get from Application
+        [Route("{application}")] //Get from Application - DONE
         public IHttpActionResult GetFromApplication(string application)
         {
             try
@@ -84,14 +85,14 @@ namespace SOMIOD.Controller
                     switch (contentType.FirstOrDefault().ToString())
                     {
                         case "application":
-                            Application app = dbHelper.getApplication(application); //PAIR PROGRAMMING
-                            return Ok(app); //enviar por XML
+                            Application app = dbHelper.getApplication(application);
+                            return Ok(app);
                         case "container":
-                            List<Container> containers = dbHelper.GetContainers(application); //PAIR PROGRAMMING
-                            return Ok(containers); //enviar por XML
+                            List<Container> containers = dbHelper.GetContainers(application);
+                            return Ok(containers);
                         case "data":
-                            List<Data> data = dbHelper.GetDatas(application, null); //PAIR PROGRAMMING
-                            return Ok(data); //enviar por XML
+                            List<Data> data = dbHelper.GetDatas(application, null);
+                            return Ok(data);
                         //case subscription:
                         default:
                             return BadRequest("Wrong Header");
@@ -110,7 +111,7 @@ namespace SOMIOD.Controller
         }
 
         [HttpGet]
-        [Route("{application}/{container}")] //Get from Application and Container
+        [Route("{application}/{container}")] //Get from Application and Container - DONE
         public IHttpActionResult GetFromApplication(string application, string container)
         {
             try
@@ -119,17 +120,16 @@ namespace SOMIOD.Controller
 
                 if (headers.TryGetValues("somiod-discover", out var contentType))
                 {
-                    switch (contentType.ToString())
+                    switch (contentType.FirstOrDefault().ToString())
                     {
                         case "application":
-                            //NAO SEI
-                            return null;
+                            return Ok("Header application not Suported");
                         case "container":
                             Container cont = dbHelper.getContainer(application, container);
-                            return Ok(cont); //enviar por XML
+                            return Ok(cont);
                         case "data":
                             List<Data> data = dbHelper.GetDatas(application, container);
-                            return Ok(data); //enviar por XML
+                            return Ok(data);
                         //case subscription:
                         default:
                             return BadRequest("Wrong Header");
@@ -183,7 +183,7 @@ namespace SOMIOD.Controller
                 }
 
                 dbHelper.deleteApplication(application);
-                return Ok();//enviar por XML
+                return Ok("Application deleted successfully");
             }
             catch (Exception ex)
             {
@@ -192,7 +192,7 @@ namespace SOMIOD.Controller
         }
         
         [HttpPatch]
-        [Route("{application}")] //Update Application ---- PAIR PROGRAMMING
+        [Route("{application}")] //Update Application - DONE
         public IHttpActionResult UpdateApplication(string application, string name) //name in query string on the URL
         {
             try
@@ -208,7 +208,7 @@ namespace SOMIOD.Controller
                 }
 
                 Application app = dbHelper.updateApplication(name, application);
-                return Ok(app);//enviar por XML
+                return Ok(app);
             }
             catch (Exception ex)
             {
@@ -239,7 +239,7 @@ namespace SOMIOD.Controller
                 }
 
                 dbHelper.createContainer(c.Name, application);
-                return Ok(c);//enviar por XML
+                return Ok("Container created successfully");
             }
             catch (Exception ex)
             {
@@ -264,7 +264,7 @@ namespace SOMIOD.Controller
                 }
 
                 dbHelper.deleteContainer(application, container);
-                return Ok();//enviar por XML
+                return Ok("Application deleted successfully");
             }
             catch (Exception ex)
             {
@@ -273,7 +273,7 @@ namespace SOMIOD.Controller
         }
 
         [HttpPatch]
-        [Route("{application}/{container}")] //Update Container ---- PAIR PROGRAMMING
+        [Route("{application}/{container}")] //Update Container - DONE
         public IHttpActionResult UpdateContainer(string application, string container, string name) //name in query string on the URL
         {
             try
@@ -294,7 +294,7 @@ namespace SOMIOD.Controller
                 }
 
                 Container c = dbHelper.updateContainer(name, application, container);
-                return Ok(c);//enviar por XML
+                return Ok(c);
             }
             catch (Exception ex)
             {
@@ -328,6 +328,11 @@ namespace SOMIOD.Controller
                     return BadRequest("Invalid data");
                 }
 
+                if (string.IsNullOrEmpty(data.Content))
+                {
+                    return BadRequest("Invalid content");
+                }
+
                 dbHelper.sendData(data.Content, application, container);
 
                 if(mClient.IsConnected)
@@ -337,7 +342,7 @@ namespace SOMIOD.Controller
                     mClient.Publish(application, Encoding.UTF8.GetBytes(data.Content)); //o que é o canal???
                 }
 
-                return Ok(data); //enviar por XML
+                return Ok("Data created successfully"); 
 
             }
             catch (Exception ex)
@@ -368,7 +373,7 @@ namespace SOMIOD.Controller
                 }
 
                 dbHelper.deleteData(application, container, dataId);
-                return Ok();//enviar por XML
+                return Ok("Data deleted successfully");
             }
             catch (Exception ex)
             {
@@ -376,9 +381,9 @@ namespace SOMIOD.Controller
             }
         }
 
-        [HttpGet]
-        [Route("{application}/{container}/data/{dataId}")] //Get Data
-        public IHttpActionResult GetData(string application, string container, int dataId)
+        [HttpPatch]
+        [Route("{application}/{container}/data/{dataId}")] //Update Data content
+        public IHttpActionResult UpdateData(string application, string container, int dataId, string content) //content in query string on the URL
         {
             try
             {
@@ -397,8 +402,13 @@ namespace SOMIOD.Controller
                     return BadRequest("Invalid dataId");
                 }
 
-                Data data = dbHelper.getData(application, container, dataId);
-                return Ok(data); //enviar por XML
+                if (string.IsNullOrEmpty(content))
+                {
+                    return BadRequest("Invalid content");
+                }
+
+                Data data = dbHelper.updateData(application, container, dataId, content);
+                return Ok(data);
             }
             catch (Exception ex)
             {
@@ -433,7 +443,7 @@ namespace SOMIOD.Controller
                 }
 
                 dbHelper.createSubscription(subs.Name, subs.EventType, subs.Endpoint, application, container);
-                return Ok(subs);//enviar por XML
+                return Ok(subs);
             }
             catch (Exception ex)
             {
@@ -463,7 +473,7 @@ namespace SOMIOD.Controller
                 }
 
                 dbHelper.deleteSubscription(application, container, subscriptionId);
-                return Ok();//enviar por XML
+                return Ok();
             }
             catch (Exception ex)
             {
