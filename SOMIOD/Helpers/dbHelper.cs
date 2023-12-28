@@ -161,7 +161,7 @@ namespace SOMIOD.Helpers
 
         #region Containers
 
-        public static long getContainerId(string name)
+        public static long GetContainerId(string name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -339,7 +339,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            long parent = getContainerId(container);
+            long parent = GetContainerId(container);
 
             string str = "INSERT INTO data (content, creation_dt, parent) VALUES (@content, @creation_dt, @parent)";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
@@ -468,7 +468,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            long parent = getContainerId(container);
+            long parent = GetContainerId(container);
 
             string str = "INSERT INTO subscription (name, event_type, end_point, creation_dt, parent) VALUES (@name, @event_type, @end_point, @creation_dt, @parent)";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
@@ -491,7 +491,7 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            long parent = getContainerId(container);
+            long parent = GetContainerId(container);
 
             string str = "DELETE FROM subscription WHERE id=@id AND parent=@parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
