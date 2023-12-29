@@ -31,8 +31,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.lamp_photo = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.btn_create_app_cont = new System.Windows.Forms.Button();
-            this.btn_subsc = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.lamp_photo)).BeginInit();
             this.SuspendLayout();
             // 
@@ -54,33 +52,11 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "Lamp";
             // 
-            // btn_create_app_cont
-            // 
-            this.btn_create_app_cont.Location = new System.Drawing.Point(152, 439);
-            this.btn_create_app_cont.Name = "btn_create_app_cont";
-            this.btn_create_app_cont.Size = new System.Drawing.Size(249, 23);
-            this.btn_create_app_cont.TabIndex = 2;
-            this.btn_create_app_cont.Text = "Create Application and Container";
-            this.btn_create_app_cont.UseVisualStyleBackColor = true;
-            this.btn_create_app_cont.Click += new System.EventHandler(this.btn_create_app_cont_Click);
-            // 
-            // btn_subsc
-            // 
-            this.btn_subsc.Location = new System.Drawing.Point(230, 477);
-            this.btn_subsc.Name = "btn_subsc";
-            this.btn_subsc.Size = new System.Drawing.Size(91, 23);
-            this.btn_subsc.TabIndex = 3;
-            this.btn_subsc.Text = "Subscrive";
-            this.btn_subsc.UseVisualStyleBackColor = true;
-            this.btn_subsc.Click += new System.EventHandler(this.btn_subsc_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(563, 512);
-            this.Controls.Add(this.btn_subsc);
-            this.Controls.Add(this.btn_create_app_cont);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.lamp_photo);
             this.Name = "Form1";
@@ -95,8 +71,6 @@
 
         private System.Windows.Forms.PictureBox lamp_photo;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button btn_create_app_cont;
-        private System.Windows.Forms.Button btn_subsc;
     }
 }
 
