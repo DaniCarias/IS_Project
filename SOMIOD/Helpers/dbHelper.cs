@@ -29,7 +29,8 @@ namespace SOMIOD.Helpers
 
         #region Applications
 
-        public static Boolean isApplicationExist(string application_name)
+        //VERIFY IF APPLICATION EXISTS
+        public static Boolean IsApplicationExist(string application_name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -45,9 +46,10 @@ namespace SOMIOD.Helpers
             return exists;
         }
 
+        //GET APPLICATION ID
         public static long GetApplicationId(string application_name)
         {
-            Boolean exists = isApplicationExist(application_name);
+            Boolean exists = IsApplicationExist(application_name);
 
             if (!exists)
             {
@@ -74,7 +76,8 @@ namespace SOMIOD.Helpers
             return id;
         }
 
-        public static void createApplication (string name)
+        //CREATE APPLICATION
+        public static void CreateApplication (string name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -92,7 +95,8 @@ namespace SOMIOD.Helpers
             }
         }
         
-        public static void deleteApplication(string name)
+        //DELETE APPLICATION
+        public static void DeleteApplication(string name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -109,7 +113,8 @@ namespace SOMIOD.Helpers
             }
         }
 
-        public static Models.Application updateApplication(string newName, string oldName)
+        //UPDATE APPLICATION NAME
+        public static Models.Application UpdateApplication(string newName, string oldName)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -126,10 +131,11 @@ namespace SOMIOD.Helpers
             {
                 throw new Exception("Error");
             }
-            return getApplication(newName);
+            return GetApplication(newName);
         }
 
-        public static Models.Application getApplication(String name)
+        //APPLICATION INFO
+        public static Models.Application GetApplication(String name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -155,8 +161,9 @@ namespace SOMIOD.Helpers
             reader.Close();
             conn.Close();
             return app;
-        } //APPLICATION INFO
+        }
 
+        //ALL APPLICATIONS
         public static List<Models.Application> GetAllApplications()
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
@@ -182,14 +189,15 @@ namespace SOMIOD.Helpers
             reader.Close();
             conn.Close();
             return list;
-        } //ALL APPLICATIONS
+        } 
 
         #endregion
 
 
         #region Containers
 
-        public static Boolean isContainerExist(string application_name)
+        //VERIFY IF CONTAINER EXISTS
+        public static Boolean IsContainerExist(string application_name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -205,9 +213,10 @@ namespace SOMIOD.Helpers
             return exists;
         }
 
+        //GET CONTAINER ID
         public static long GetContainerId(string container_name)
         {
-            Boolean exists = isContainerExist(container_name);
+            Boolean exists = IsContainerExist(container_name);
 
             if (!exists)
             {
@@ -230,7 +239,8 @@ namespace SOMIOD.Helpers
             return id;
         }
 
-        public static void createContainer(string container_name, string application)
+        //CREATE CONTAINER
+        public static void CreateContainer(string container_name, string application)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -252,7 +262,8 @@ namespace SOMIOD.Helpers
 
         } 
     
-        public static void deleteContainer(string application, string container)
+        //DELETE CONTAINER
+        public static void DeleteContainer(string application, string container)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -272,17 +283,18 @@ namespace SOMIOD.Helpers
             }
         }
 
-        public static Models.Container updateContainer(string new_container, string application, string old_container)
+        //UPDATE CONTAINER NAME
+        public static Models.Container UpdateContainer(string new_name, string application, string old_name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             long parent = GetApplicationId(application);
 
-            string str = "UPDATE container SET name=@name WHERE name ILIKE @container AND parent=@parent";
+            string str = "UPDATE container SET name=@new_name WHERE name ILIKE @old_name AND parent=@parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
-            command.Parameters.AddWithValue("@name", new_container);
-            command.Parameters.AddWithValue("@container", old_container);
+            command.Parameters.AddWithValue("@new_name", new_name);
+            command.Parameters.AddWithValue("@old_name", old_name);
             command.Parameters.AddWithValue("@parent", parent);
 
             int rows = command.ExecuteNonQuery();
@@ -293,11 +305,12 @@ namespace SOMIOD.Helpers
                 throw new Exception("Error");
             }
 
-            Models.Container cont = dbHelper.getContainer(application, new_container);
-            return cont; //enviar por XML
+            Models.Container cont = dbHelper.GetContainer(application, new_name);
+            return cont;
         }
 
-        public static Models.Container getContainer(string application, string name)
+        //CONTAINER INFO
+        public static Models.Container GetContainer(string application, string name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -324,8 +337,9 @@ namespace SOMIOD.Helpers
             conn.Close();
 
             return container;
-        } //CONTAINER INFO
+        } 
 
+        //CONTAINERS FROM AN APPLICATION
         public static List<Models.Container> GetContainers(string application)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
@@ -354,8 +368,9 @@ namespace SOMIOD.Helpers
             reader.Close();
             conn.Close();
             return list;
-        } //APPLICATIONS
+        } 
 
+        //ALL CONTAINERS
         public static List<Models.Container> GetAllContainers()
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
@@ -381,14 +396,15 @@ namespace SOMIOD.Helpers
             reader.Close();
             conn.Close();
             return list;
-        } //TODOS
+        } 
 
         #endregion
 
 
         #region Data
 
-        public static void sendData(string content, string app, string container)
+        //CREATE DATA
+        public static void CreateData(string content, string app, string container)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -411,7 +427,8 @@ namespace SOMIOD.Helpers
 
         }
 
-        public static void deleteData(string application, string container, int dataId)
+        //DELETE DATA
+        public static void DeleteData(string application, string container, int dataId)
        {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -431,7 +448,8 @@ namespace SOMIOD.Helpers
             }
         }
 
-        public static Models.Data updateData(string application, string container, int dataId, string new_content)
+        //UPDATE DATA CONTENT
+        public static Models.Data UpdateData(string application, string container, int dataId, string new_content)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -452,11 +470,12 @@ namespace SOMIOD.Helpers
                 throw new Exception("Error");
             }
 
-            Models.Data data = dbHelper.getData(application, container, dataId);
-            return data; //enviar por XML
+            Models.Data data = dbHelper.GetData(application, container, dataId);
+            return data;
         }
 
-        public static Models.Data getData(string application, string container, int dataId)
+        //DATA INFO
+        public static Models.Data GetData(string application, string container, int dataId)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -482,8 +501,9 @@ namespace SOMIOD.Helpers
             reader.Close();
             conn.Close();
             return data;
-        } //DATA INFO
+        }
 
+        //ALL DATA
         public static List<Models.Data> GetAllDatas()
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
@@ -509,14 +529,49 @@ namespace SOMIOD.Helpers
             reader.Close();
             conn.Close();
             return list;
-        } //TODAS
+        }
 
-        public static List<Models.Data> GetDatas(string application, string container) //MUDAR para so app
+        //ALL DATA FROM APPLICATION
+        public static List<Models.Data> GetDatas(string application, string container) 
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            long parent = GetApplicationId(application);
+            //get containers from application
+            List<Models.Container> cont_list = GetContainers(application);
+
+            List<long> uniqueParentIds = cont_list.Select(c => c.Parent).Distinct().ToList();
+
+            string str = "SELECT * FROM data WHERE parent in @parents";
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
+            command.Parameters.AddWithValue("@parent", uniqueParentIds);
+
+            List<Models.Data> list = new List<Models.Data>();
+
+            NpgsqlDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                Models.Data data = new Models.Data
+                {
+                    Id = (long)reader["id"],
+                    Content = (string)reader["content"],
+                    Creation_dt = (DateTime)reader["creation_dt"],
+                    Parent = (long)reader["parent"]
+                };
+                list.Add(data);
+            }
+            reader.Close();
+            conn.Close();
+            return list;
+        }
+
+        //ALL DATA FROM CONTAINER
+        public static List<Models.Data> GetDatas(string container)
+        {
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
+            conn.Open();
+
+            long parent = GetContainerId(container);
 
             string str = "SELECT * FROM data WHERE parent=@parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
@@ -541,8 +596,6 @@ namespace SOMIOD.Helpers
             return list;
         }
 
-        //PARA CONTAINER
-
         #endregion
 
 
@@ -565,7 +618,7 @@ namespace SOMIOD.Helpers
             return exists;
         }
 
-        public static long getSubscriptionId(string application, string container, string subscriptionName)
+        public static long GetSubscriptionId(string application, string container, string subscriptionName)
         {
             Boolean exists = IsSubscriptionExist(subscriptionName);
 
@@ -594,7 +647,7 @@ namespace SOMIOD.Helpers
             return id;
         }
 
-        public static void createSubscription(string name, string endPoint, string application, string container)
+        public static void CreateSubscription(string name, string endPoint, string application, string container)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -616,9 +669,9 @@ namespace SOMIOD.Helpers
             }
         }
 
-        public static void deleteSubscription(string application, string container, string subscriptionName)
+        public static void DeleteSubscription(string application, string container, string subscriptionName)
         {
-            long subscriptionId = getSubscriptionId(application, container, subscriptionName);
+            long subscriptionId = GetSubscriptionId(application, container, subscriptionName);
 
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -639,12 +692,12 @@ namespace SOMIOD.Helpers
             }
         }
 
-        public static Models.Subscription updateSubscription(string application, string container, string subscriptionName, string new_name, string new_endPoint)
+        public static Models.Subscription UpdateSubscription(string application, string container, string subscriptionName, string new_name, string new_endPoint)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            long subscriptionId = getSubscriptionId(application, container, subscriptionName);
+            long subscriptionId = GetSubscriptionId(application, container, subscriptionName);
             long parent = GetContainerId(container);
 
             string str = "UPDATE subscription SET name = @new_name, endpoint = @new_endPoint WHERE id=@id AND parent=@parent";
@@ -662,11 +715,11 @@ namespace SOMIOD.Helpers
                 throw new Exception("Error");
             }
 
-            Models.Subscription subscription = dbHelper.getSubscription(application, container, subscriptionId);
+            Models.Subscription subscription = dbHelper.GetSubscription(application, container, subscriptionId);
             return subscription;
         }
 
-        public static Models.Subscription getSubscription(string application, string container, long subscriptionId)
+        public static Models.Subscription GetSubscription(string application, string container, long subscriptionId)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -762,12 +815,16 @@ namespace SOMIOD.Helpers
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
+
             long parent = GetContainerId(container);
+
             string str = "SELECT * FROM subscription WHERE parent=@parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@parent", parent);
+
             NpgsqlDataReader reader = command.ExecuteReader();
             List<Models.Subscription> list = new List<Models.Subscription>();
+
             while (reader.Read())
             {
                 Models.Subscription subscription = new Models.Subscription
@@ -781,6 +838,7 @@ namespace SOMIOD.Helpers
                 };
                 list.Add(subscription);
             }
+
             reader.Close();
             conn.Close();
             return list;

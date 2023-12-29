@@ -87,7 +87,7 @@ namespace SOMIOD.Controller
                     switch (contentType.FirstOrDefault().ToString())
                     {
                         case "application":
-                            Application app = dbHelper.getApplication(application);
+                            Application app = dbHelper.GetApplication(application);
                             return Ok(app);
                         case "container":
                             List<Container> containers = dbHelper.GetContainers(application);
@@ -129,7 +129,7 @@ namespace SOMIOD.Controller
                         case "application":
                             return Ok("Header application not Suported");
                         case "container":
-                            Container cont = dbHelper.getContainer(application, container);
+                            Container cont = dbHelper.GetContainer(application, container);
                             return Ok(cont);
                         case "data":
                             List<Data> data = dbHelper.GetDatas(application, container);
@@ -159,16 +159,16 @@ namespace SOMIOD.Controller
 
         [HttpPost]
         [Route("")] //Create Application - DONE
-        public IHttpActionResult PostApplication([FromBody] string name)
+        public IHttpActionResult PostApplication([FromBody] Application app)
         {
             try
             {
-                if (string.IsNullOrEmpty(name))
+                if (string.IsNullOrEmpty(app.Name))
                 {
                     return BadRequest("Invalid name");
                 }
 
-                dbHelper.createApplication(name);
+                dbHelper.CreateApplication(app.Name);
                 return Ok("Application created successfully");
             }
             catch (Exception ex)
@@ -188,7 +188,7 @@ namespace SOMIOD.Controller
                     return BadRequest("Invalid name");
                 }
 
-                dbHelper.deleteApplication(application);
+                dbHelper.DeleteApplication(application);
                 return Ok("Application deleted successfully");
             }
             catch (Exception ex)
@@ -213,7 +213,7 @@ namespace SOMIOD.Controller
                     return BadRequest("Invalid Name");
                 }
 
-                Application app = dbHelper.updateApplication(name, application);
+                Application app = dbHelper.UpdateApplication(name, application);
                 return Ok(app);
             }
             catch (Exception ex)
@@ -229,7 +229,7 @@ namespace SOMIOD.Controller
 
         [HttpPost]
         [Route("{application}")] //Create Container - DONE
-        public IHttpActionResult PostContainers(string application, [FromBody] string name)
+        public IHttpActionResult PostContainers(string application, [FromBody] Container container)
         {
 
             try
@@ -239,12 +239,12 @@ namespace SOMIOD.Controller
                     return BadRequest("Invalid application");
                 }
 
-                if (string.IsNullOrEmpty(name))
+                if (string.IsNullOrEmpty(container.Name))
                 {
                    return BadRequest("Invalid container");
                 }
 
-                dbHelper.createContainer(name, application);
+                dbHelper.CreateContainer(container.Name, application);
                 return Ok("Container created successfully");
             }
             catch (Exception ex)
@@ -269,7 +269,7 @@ namespace SOMIOD.Controller
                     return BadRequest("Invalid Container");
                 }
 
-                dbHelper.deleteContainer(application, container);
+                dbHelper.DeleteContainer(application, container);
                 return Ok("Application deleted successfully");
             }
             catch (Exception ex)
@@ -299,7 +299,7 @@ namespace SOMIOD.Controller
                     return BadRequest("Invalid Name");
                 }
 
-                Container c = dbHelper.updateContainer(name, application, container);
+                Container c = dbHelper.UpdateContainer(name, application, container);
                 return Ok(c);
             }
             catch (Exception ex)
@@ -315,7 +315,7 @@ namespace SOMIOD.Controller
 
         [HttpPost]
         [Route("{application}/{container}/data")] //Send Data to Broker - DONE
-        public IHttpActionResult SendDataToBroker(string application, string container, [FromBody] string content)
+        public IHttpActionResult SendDataToBroker(string application, string container, [FromBody] Data data)
         {
             try
             {
@@ -329,18 +329,18 @@ namespace SOMIOD.Controller
                     return BadRequest("Invalid container");
                 }
 
-                if (string.IsNullOrEmpty(content))
+                if (string.IsNullOrEmpty(data.Content))
                 {
                     return BadRequest("Invalid data");
                 }
 
-                dbHelper.sendData(content, application, container);
+                dbHelper.CreateData(data.Content, application, container);
 
                 if(mClient.IsConnected)
                 {
                     
                     //envia a mensagem para o broker com o topico que foi selecionado e a mensagem que foi escrita
-                    mClient.Publish(application, Encoding.UTF8.GetBytes(content)); //o que é o canal???
+                    mClient.Publish(application, Encoding.UTF8.GetBytes(data.Content));
                 }
 
                 return Ok("Data created successfully");
@@ -373,7 +373,7 @@ namespace SOMIOD.Controller
                     return BadRequest("Invalid dataId");
                 }
 
-                dbHelper.deleteData(application, container, dataId);
+                dbHelper.DeleteData(application, container, dataId);
                 return Ok("Data deleted successfully");
             }
             catch (Exception ex)
@@ -408,7 +408,7 @@ namespace SOMIOD.Controller
                     return BadRequest("Invalid content");
                 }
 
-                Data data = dbHelper.updateData(application, container, dataId, content);
+                Data data = dbHelper.UpdateData(application, container, dataId, content);
                 return Ok(data);
             }
             catch (Exception ex)
@@ -454,7 +454,7 @@ namespace SOMIOD.Controller
                     return BadRequest("Invalid endpoint");
                 }
 
-                dbHelper.createSubscription(data.Name, data.Endpoint, application, container);
+                dbHelper.CreateSubscription(data.Name, data.Endpoint, application, container);
                 return Ok("Subscription created successfully");
             }
             catch (Exception ex)
@@ -484,7 +484,7 @@ namespace SOMIOD.Controller
                     return BadRequest("Invalid subscription name");
                 }
 
-                dbHelper.deleteSubscription(application, container, subscriptionName);
+                dbHelper.DeleteSubscription(application, container, subscriptionName);
                 return Ok("Subscription deleted successfully");
             }
             catch (Exception ex)
@@ -516,7 +516,7 @@ namespace SOMIOD.Controller
                     return BadRequest("Invalid data");
                 }
                 
-                Subscription subs = dbHelper.updateSubscription(application, container, subscriptionName, data.Name, data.Endpoint);
+                Subscription subs = dbHelper.UpdateSubscription(application, container, subscriptionName, data.Name, data.Endpoint);
                 return Ok(subs);
             }
             catch (Exception ex)
