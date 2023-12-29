@@ -27,6 +27,7 @@ namespace SOMIOD.Helpers
 
         static string connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};";
 
+
         #region Applications
 
         //VERIFY IF APPLICATION EXISTS
@@ -537,14 +538,14 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            //get containers from application
-            List<Models.Container> cont_list = GetContainers(application);
+            List<Models.Container> containers_list = GetContainers(application);
+            List<long> uniqueParentIds = containers_list.Select(c => c.Id).Distinct().ToList();
 
-            List<long> uniqueParentIds = cont_list.Select(c => c.Parent).Distinct().ToList();
+            string parentIdsString = string.Join(",", uniqueParentIds);
 
-            string str = "SELECT * FROM data WHERE parent in @parents";
+            string str = $"SELECT * FROM data WHERE parent IN ({parentIdsString})";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
-            command.Parameters.AddWithValue("@parent", uniqueParentIds);
+            command.Parameters.AddWithValue("@parent", parentIdsString); ;
 
             List<Models.Data> list = new List<Models.Data>();
 
@@ -601,6 +602,7 @@ namespace SOMIOD.Helpers
 
         #region Subscription
 
+        //VERIFY IF SUBSCRIPTION EXISTS
         public static Boolean IsSubscriptionExist(string subscriptionName)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
@@ -618,6 +620,7 @@ namespace SOMIOD.Helpers
             return exists;
         }
 
+        //GET SUBSCRIPTION ID
         public static long GetSubscriptionId(string application, string container, string subscriptionName)
         {
             Boolean exists = IsSubscriptionExist(subscriptionName);
@@ -647,6 +650,7 @@ namespace SOMIOD.Helpers
             return id;
         }
 
+        //CREATE SUBSCRIPTION
         public static void CreateSubscription(string name, string endPoint, string application, string container)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
@@ -669,6 +673,7 @@ namespace SOMIOD.Helpers
             }
         }
 
+        //DELETE SUBSCRIPTION
         public static void DeleteSubscription(string application, string container, string subscriptionName)
         {
             long subscriptionId = GetSubscriptionId(application, container, subscriptionName);
@@ -692,6 +697,7 @@ namespace SOMIOD.Helpers
             }
         }
 
+        //UPDATE SUBSCRIPTION
         public static Models.Subscription UpdateSubscription(string application, string container, string subscriptionName, string new_name, string new_endPoint)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
@@ -719,6 +725,7 @@ namespace SOMIOD.Helpers
             return subscription;
         }
 
+        //SUBSCRIPTION INFO
         public static Models.Subscription GetSubscription(string application, string container, long subscriptionId)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
@@ -747,8 +754,9 @@ namespace SOMIOD.Helpers
             reader.Close();
             conn.Close();
             return subscription;
-        } //SUBSCRIPTION INFO
+        }
 
+        //GET ALL SUBSCRIPTIONS
         public static List<Models.Subscription> GetAllSubscriptions()
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
@@ -777,18 +785,22 @@ namespace SOMIOD.Helpers
             reader.Close();
             conn.Close();
             return list;
-        } //TODAS
+        }
 
-        public static List<Models.Subscription> GetSubscriptions(string application) //MUDAR para so app
+        //GET SUBSCRIPTIONS OF A CONTAINER
+        public static List<Models.Subscription> GetSubscriptions(string application)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            long parent = GetApplicationId(application);
+            List<Models.Container> containers_list = GetContainers(application);
+            List<long> uniqueParentIds = containers_list.Select(c => c.Id).Distinct().ToList();
 
-            string str = "SELECT * FROM subscription WHERE parent=@parent";
+            string parentIdsString = string.Join(",", uniqueParentIds);
+
+            string str = $"SELECT * FROM subscription WHERE parent IN ({parentIdsString})";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
-            command.Parameters.AddWithValue("@parent", parent);
+            command.Parameters.AddWithValue("@parent", parentIdsString);
 
             NpgsqlDataReader reader = command.ExecuteReader();
             List<Models.Subscription> list = new List<Models.Subscription>();
@@ -811,6 +823,7 @@ namespace SOMIOD.Helpers
             return list;
         }
 
+        //GET SUBSCRIPTIONS OF A CONTAINER
         public static List<Models.Subscription> GetSubscriptions(string application, string container)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
@@ -842,7 +855,8 @@ namespace SOMIOD.Helpers
             reader.Close();
             conn.Close();
             return list;
-        } // FAZER PARA CONTAINER
+        }
+
         #endregion
 
     }

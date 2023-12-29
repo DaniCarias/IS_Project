@@ -75,7 +75,7 @@ namespace SOMIOD.Controller
         }
 
         [HttpGet]
-        [Route("{application}")] //Get from Application - DONE -> FALTA SUBSCRIPTION e corrigir o data
+        [Route("{application}")] //Get from Application - DONE
         public IHttpActionResult GetFromApplication(string application)
         {
             try
@@ -115,7 +115,7 @@ namespace SOMIOD.Controller
         }
 
         [HttpGet]
-        [Route("{application}/{container}")] //Get from Application and Container - DONE -> FALTA SUBSCRIPTION e corrigir o data
+        [Route("{application}/{container}")] //Get from Application and Container - DONE
         public IHttpActionResult GetFromApplication(string application, string container)
         {
             try
