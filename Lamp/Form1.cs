@@ -40,5 +40,29 @@ namespace Lamp
                 MessageBox.Show($"Error loading image: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        private void btn_create_app_cont_Click(object sender, EventArgs e)
+        {
+            //Verify if already exists (if yes disable the button, if no enable the button)
+
+
+            //Request POST to create app
+
+
+            //Request POST to create container
+
+
+        }
+
+        private void btn_subsc_Click(object sender, EventArgs e)
+        {
+            //Request POST to create subscribe
+
+
+            //Subscrive to broker in MQTT
+
+
+            //Listening if there is a message in MQTT chanel - here?????
+        }
     }
 }

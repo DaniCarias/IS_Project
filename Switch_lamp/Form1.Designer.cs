@@ -31,6 +31,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.btn_on = new System.Windows.Forms.Button();
             this.btn_off = new System.Windows.Forms.Button();
+            this.btn_create_app = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -62,11 +63,22 @@
             this.btn_off.UseVisualStyleBackColor = true;
             this.btn_off.Click += new System.EventHandler(this.btn_off_Click);
             // 
+            // btn_create_app
+            // 
+            this.btn_create_app.Location = new System.Drawing.Point(125, 162);
+            this.btn_create_app.Name = "btn_create_app";
+            this.btn_create_app.Size = new System.Drawing.Size(147, 23);
+            this.btn_create_app.TabIndex = 3;
+            this.btn_create_app.Text = "Create Application";
+            this.btn_create_app.UseVisualStyleBackColor = true;
+            this.btn_create_app.Click += new System.EventHandler(this.btn_create_app_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(404, 197);
+            this.Controls.Add(this.btn_create_app);
             this.Controls.Add(this.btn_off);
             this.Controls.Add(this.btn_on);
             this.Controls.Add(this.label1);
@@ -82,6 +94,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btn_on;
         private System.Windows.Forms.Button btn_off;
+        private System.Windows.Forms.Button btn_create_app;
     }
 }
 
