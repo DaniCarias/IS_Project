@@ -27,6 +27,7 @@ namespace SOMIOD.Helpers
 
         static string connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};";
 
+
         #region Applications
 
         //VERIFY IF APPLICATION EXISTS
@@ -855,6 +856,7 @@ namespace SOMIOD.Helpers
             conn.Close();
             return list;
         }
+
         #endregion
 
     }
