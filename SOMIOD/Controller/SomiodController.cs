@@ -55,7 +55,9 @@ namespace SOMIOD.Controller
                         case "data":
                             List<Data> datas = dbHelper.GetAllDatas();
                             return Ok(datas); 
-                        //case subscription:
+                        case "subscription":
+                            List<Subscription> subscriptions = dbHelper.GetAllSubscriptions();
+                            return Ok(subscriptions);
                         default:
                             return BadRequest("Wrong Header");
                     }
@@ -73,7 +75,7 @@ namespace SOMIOD.Controller
         }
 
         [HttpGet]
-        [Route("{application}")] //Get from Application - DONE
+        [Route("{application}")] //Get from Application - DONE -> FALTA SUBSCRIPTION e corrigir o data
         public IHttpActionResult GetFromApplication(string application)
         {
             try
@@ -93,7 +95,9 @@ namespace SOMIOD.Controller
                         case "data":
                             List<Data> data = dbHelper.GetDatas(application, null);
                             return Ok(data);
-                        //case subscription:
+                        case "subscription":
+                            List<Subscription> subscriptions = dbHelper.GetSubscriptions(application);
+                            return Ok(subscriptions);
                         default:
                             return BadRequest("Wrong Header");
                     }
@@ -111,7 +115,7 @@ namespace SOMIOD.Controller
         }
 
         [HttpGet]
-        [Route("{application}/{container}")] //Get from Application and Container - DONE
+        [Route("{application}/{container}")] //Get from Application and Container - DONE -> FALTA SUBSCRIPTION e corrigir o data
         public IHttpActionResult GetFromApplication(string application, string container)
         {
             try
@@ -130,7 +134,9 @@ namespace SOMIOD.Controller
                         case "data":
                             List<Data> data = dbHelper.GetDatas(application, container);
                             return Ok(data);
-                        //case subscription:
+                        case "subscription":
+                            List<Subscription> subscriptions = dbHelper.GetSubscriptions(application, container);
+                            return Ok(subscriptions);
                         default:
                             return BadRequest("Wrong Header");
                     }
@@ -416,9 +422,15 @@ namespace SOMIOD.Controller
 
         #region Subscription
 
+        public class SubscriptionData
+        {
+            public string Name { get; set; }
+            public string Endpoint { get; set; }
+        }
+
         [HttpPost]
-        [Route("{application}/{container}/subscription")] //Create Subscription
-        public IHttpActionResult PostSubscription(string application, string container, [FromBody] Subscription subs)
+        [Route("{application}/{container}/subscription")] //Create Subscription - DONE
+        public IHttpActionResult PostSubscription(string application, string container, [FromBody] SubscriptionData data)
         {
             try
             {
@@ -432,13 +444,18 @@ namespace SOMIOD.Controller
                     return BadRequest("Invalid container");
                 }
 
-                if (subs == null)
+                if (string.IsNullOrEmpty(data.Name))
                 {
-                    return BadRequest("Invalid subscription");
+                    return BadRequest("Invalid subscription name");
                 }
 
-                dbHelper.createSubscription(subs.Name, subs.EventType, subs.Endpoint, application, container);
-                return Ok(subs);
+                if (string.IsNullOrEmpty(data.Endpoint))
+                {
+                    return BadRequest("Invalid endpoint");
+                }
+
+                dbHelper.createSubscription(data.Name, data.Endpoint, application, container);
+                return Ok("Subscription created successfully");
             }
             catch (Exception ex)
             {
@@ -447,8 +464,8 @@ namespace SOMIOD.Controller
         }
 
         [HttpDelete]
-        [Route("{application}/{container}/subscription/{subscriptionId}")] //Delete Subscription
-        public IHttpActionResult DeleteSubscription(string application, string container, int subscriptionId)
+        [Route("{application}/{container}/subscription/{subscriptionName}")] //Delete Subscription- DONE
+        public IHttpActionResult DeleteSubscription(string application, string container, string subscriptionName)
         {
             try
             {
@@ -462,13 +479,45 @@ namespace SOMIOD.Controller
                     return BadRequest("Invalid container");
                 }
 
-                if (subscriptionId == null)
+                if (string.IsNullOrEmpty(subscriptionName))
                 {
-                    return BadRequest("Invalid subscriptionId");
+                    return BadRequest("Invalid subscription name");
                 }
 
-                dbHelper.deleteSubscription(application, container, subscriptionId);
-                return Ok();
+                dbHelper.deleteSubscription(application, container, subscriptionName);
+                return Ok("Subscription deleted successfully");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.ToString());
+            }
+        }
+
+        [HttpPut]
+        [Route("{application}/{container}/subscription/{subscriptionName}")] //Update Subscription - DONE
+        public IHttpActionResult UpdateSubscription(string application, string container, string subscriptionName, [FromBody] SubscriptionData data)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(application))
+                {
+                    return BadRequest("Invalid application");
+                }
+                if (string.IsNullOrEmpty(container))
+                {
+                    return BadRequest("Invalid container");
+                }
+                if (string.IsNullOrEmpty(subscriptionName))
+                {
+                    return BadRequest("Invalid subscription name");
+                }
+                if (data == null)
+                {
+                    return BadRequest("Invalid data");
+                }
+                
+                Subscription subs = dbHelper.updateSubscription(application, container, subscriptionName, data.Name, data.Endpoint);
+                return Ok(subs);
             }
             catch (Exception ex)
             {

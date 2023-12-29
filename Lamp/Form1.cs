@@ -43,13 +43,20 @@ namespace Lamp
 
         private void btn_create_app_cont_Click(object sender, EventArgs e)
         {
+            //Como escolher o nome da aplicação e do container???? -> adicionar um textbox para cada um na UI???
+
+
             //Verify if already exists (if yes disable the button, if no enable the button)
+            //[Route("{application}")] header = (somiod-discover = application) - Get application
+            //[Route("{application}/{container}")] header = (somiod-discover = container) - Get Container
 
 
             //Request POST to create app
+            //[Route("")] - Create Application
 
 
             //Request POST to create container
+            //[Route("{application}")] - Create Container
 
 
         }
@@ -57,6 +64,7 @@ namespace Lamp
         private void btn_subsc_Click(object sender, EventArgs e)
         {
             //Request POST to create subscribe
+            //[Route("{application}/{container}/subscription")] - Create Subscription
 
 
             //Subscrive to broker in MQTT

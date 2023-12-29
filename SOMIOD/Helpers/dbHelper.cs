@@ -109,6 +109,26 @@ namespace SOMIOD.Helpers
             }
         }
 
+        public static Models.Application updateApplication(string newName, string oldName)
+        {
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
+            conn.Open();
+
+            string str = "UPDATE application SET name = @new_name WHERE name ILIKE @old_name";
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
+            command.Parameters.AddWithValue("@new_name", newName);
+            command.Parameters.AddWithValue("@old_name", oldName);
+
+            int rows = command.ExecuteNonQuery();
+
+            conn.Close();
+            if (rows <= 0)
+            {
+                throw new Exception("Error");
+            }
+            return getApplication(newName);
+        }
+
         public static Models.Application getApplication(String name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
@@ -135,7 +155,7 @@ namespace SOMIOD.Helpers
             reader.Close();
             conn.Close();
             return app;
-        }
+        } //APPLICATION INFO
 
         public static List<Models.Application> GetAllApplications()
         {
@@ -162,27 +182,7 @@ namespace SOMIOD.Helpers
             reader.Close();
             conn.Close();
             return list;
-        }
-
-        public static Models.Application updateApplication(string newName, string oldName) //REVER PAIR PROGRAMMING
-        {
-            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
-            conn.Open();
-
-            string str = "UPDATE application SET name = @new_name WHERE name ILIKE @old_name"; //SE FOR HARD CODED FUNCIONA - PAIR_PROGRAMMING
-            NpgsqlCommand command = new NpgsqlCommand(str, conn);
-            command.Parameters.AddWithValue("@new_name", newName);
-            command.Parameters.AddWithValue("@old_name", oldName);
-
-            int rows = command.ExecuteNonQuery();
-
-            conn.Close();
-            if (rows <= 0)
-            {
-                throw new Exception("Error");
-            }
-            return getApplication(newName);
-        }
+        } //ALL APPLICATIONS
 
         #endregion
 
@@ -272,6 +272,31 @@ namespace SOMIOD.Helpers
             }
         }
 
+        public static Models.Container updateContainer(string new_container, string application, string old_container)
+        {
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
+            conn.Open();
+
+            long parent = GetApplicationId(application);
+
+            string str = "UPDATE container SET name=@name WHERE name ILIKE @container AND parent=@parent";
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
+            command.Parameters.AddWithValue("@name", new_container);
+            command.Parameters.AddWithValue("@container", old_container);
+            command.Parameters.AddWithValue("@parent", parent);
+
+            int rows = command.ExecuteNonQuery();
+            conn.Close();
+
+            if (rows <= 0)
+            {
+                throw new Exception("Error");
+            }
+
+            Models.Container cont = dbHelper.getContainer(application, new_container);
+            return cont; //enviar por XML
+        }
+
         public static Models.Container getContainer(string application, string name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
@@ -299,7 +324,7 @@ namespace SOMIOD.Helpers
             conn.Close();
 
             return container;
-        }
+        } //CONTAINER INFO
 
         public static List<Models.Container> GetContainers(string application)
         {
@@ -329,7 +354,7 @@ namespace SOMIOD.Helpers
             reader.Close();
             conn.Close();
             return list;
-        }
+        } //APPLICATIONS
 
         public static List<Models.Container> GetAllContainers()
         {
@@ -356,32 +381,7 @@ namespace SOMIOD.Helpers
             reader.Close();
             conn.Close();
             return list;
-        }
-
-        public static Models.Container updateContainer(string new_container, string application, string old_container)
-        {
-            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
-            conn.Open();
-
-            long parent = GetApplicationId(application);
-
-            string str = "UPDATE container SET name=@name WHERE name ILIKE @container AND parent=@parent";
-            NpgsqlCommand command = new NpgsqlCommand(str, conn);
-            command.Parameters.AddWithValue("@name", new_container);
-            command.Parameters.AddWithValue("@container", old_container);
-            command.Parameters.AddWithValue("@parent", parent);
-
-            int rows = command.ExecuteNonQuery();
-            conn.Close();
-
-            if (rows <= 0)
-            {
-                throw new Exception("Error");
-            }
-
-            Models.Container cont = dbHelper.getContainer(application, new_container);
-            return cont; //enviar por XML
-        }
+        } //TODOS
 
         #endregion
 
@@ -431,6 +431,31 @@ namespace SOMIOD.Helpers
             }
         }
 
+        public static Models.Data updateData(string application, string container, int dataId, string new_content)
+        {
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
+            conn.Open();
+
+            long parent = GetContainerId(container);
+
+            string str = "UPDATE data SET content = @new_content WHERE id=@id AND parent=@parent";
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
+            command.Parameters.AddWithValue("@new_content", new_content);
+            command.Parameters.AddWithValue("@id", dataId);
+            command.Parameters.AddWithValue("@parent", parent);
+
+            int rows = command.ExecuteNonQuery();
+            conn.Close();
+
+            if (rows <= 0)
+            {
+                throw new Exception("Error");
+            }
+
+            Models.Data data = dbHelper.getData(application, container, dataId);
+            return data; //enviar por XML
+        }
+
         public static Models.Data getData(string application, string container, int dataId)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
@@ -457,7 +482,7 @@ namespace SOMIOD.Helpers
             reader.Close();
             conn.Close();
             return data;
-        }
+        } //DATA INFO
 
         public static List<Models.Data> GetAllDatas()
         {
@@ -484,9 +509,9 @@ namespace SOMIOD.Helpers
             reader.Close();
             conn.Close();
             return list;
-        }
+        } //TODAS
 
-        public static List<Models.Data> GetDatas(string application, string container)
+        public static List<Models.Data> GetDatas(string application, string container) //MUDAR para so app
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -516,49 +541,71 @@ namespace SOMIOD.Helpers
             return list;
         }
 
-        public static Models.Data updateData(string application, string container, int dataId, string new_content)
-        {
-            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
-            conn.Open();
-
-            long parent = GetContainerId(container);
-
-            string str = "UPDATE data SET content = @new_content WHERE id=@id AND parent=@parent";
-            NpgsqlCommand command = new NpgsqlCommand(str, conn);
-            command.Parameters.AddWithValue("@new_content", new_content);
-            command.Parameters.AddWithValue("@id", dataId);
-            command.Parameters.AddWithValue("@parent", parent);
-
-            int rows = command.ExecuteNonQuery();
-            conn.Close();
-
-            if (rows <= 0)
-            {
-                throw new Exception("Error");
-            }
-
-            Models.Data data = dbHelper.getData(application, container, dataId);
-            return data; //enviar por XML
-        }
+        //PARA CONTAINER
 
         #endregion
 
 
         #region Subscription
 
-        public static void createSubscription(string name, string eventType, string endPoint, string application, string container)
+        public static Boolean IsSubscriptionExist(string subscriptionName)
+        {
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
+            conn.Open();
+
+            string str = "SELECT * FROM subscription WHERE name=@name";
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
+            command.Parameters.AddWithValue("@name", subscriptionName);
+
+            NpgsqlDataReader reader = command.ExecuteReader();
+            Boolean exists = reader.HasRows;
+
+            reader.Close();
+            conn.Close();
+            return exists;
+        }
+
+        public static long getSubscriptionId(string application, string container, string subscriptionName)
+        {
+            Boolean exists = IsSubscriptionExist(subscriptionName);
+
+            if (!exists)
+            {
+                throw new Exception("Subscription do not exists");
+            }
+
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
+            conn.Open();
+
+            long parent = GetContainerId(container);
+
+            string str = "SELECT id FROM subscription WHERE name=@name AND parent=@parent";
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
+            command.Parameters.AddWithValue("@name", subscriptionName);
+            command.Parameters.AddWithValue("@parent", parent);
+
+            NpgsqlDataReader reader = command.ExecuteReader();
+            reader.Read();
+
+            long id = (long)reader["id"];
+
+            reader.Close();
+            conn.Close();
+            return id;
+        }
+
+        public static void createSubscription(string name, string endPoint, string application, string container)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             long parent = GetContainerId(container);
 
-            string str = "INSERT INTO subscription (name, event_type, end_point, creation_dt, parent) VALUES (@name, @event_type, @end_point, @creation_dt, @parent)";
+            string str = "INSERT INTO subscription (name, event, endpoint, parent) VALUES (@name, @event_type, @end_point, @parent)";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@name", name);
-            command.Parameters.AddWithValue("@event_type", eventType);
+            command.Parameters.AddWithValue("@event_type", "creation");
             command.Parameters.AddWithValue("@end_point", endPoint);
-            command.Parameters.AddWithValue("@creation_dt", DateTime.Now);
             command.Parameters.AddWithValue("@parent", parent);
 
             int rows = command.ExecuteNonQuery();
@@ -569,8 +616,10 @@ namespace SOMIOD.Helpers
             }
         }
 
-        public static void deleteSubscription(string application, string container, int subscriptionId)
+        public static void deleteSubscription(string application, string container, string subscriptionName)
         {
+            long subscriptionId = getSubscriptionId(application, container, subscriptionName);
+
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
@@ -590,7 +639,153 @@ namespace SOMIOD.Helpers
             }
         }
 
+        public static Models.Subscription updateSubscription(string application, string container, string subscriptionName, string new_name, string new_endPoint)
+        {
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
+            conn.Open();
+
+            long subscriptionId = getSubscriptionId(application, container, subscriptionName);
+            long parent = GetContainerId(container);
+
+            string str = "UPDATE subscription SET name = @new_name, endpoint = @new_endPoint WHERE id=@id AND parent=@parent";
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
+            command.Parameters.AddWithValue("@new_name", new_name);
+            command.Parameters.AddWithValue("@new_endPoint", new_endPoint);
+            command.Parameters.AddWithValue("@id", subscriptionId);
+            command.Parameters.AddWithValue("@parent", parent);
+
+            int rows = command.ExecuteNonQuery();
+            conn.Close();
+
+            if (rows <= 0)
+            {
+                throw new Exception("Error");
+            }
+
+            Models.Subscription subscription = dbHelper.getSubscription(application, container, subscriptionId);
+            return subscription;
+        }
+
+        public static Models.Subscription getSubscription(string application, string container, long subscriptionId)
+        {
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
+            conn.Open();
+
+            long parent = GetContainerId(container);
+
+            string str = "SELECT * FROM subscription WHERE id=@id AND parent=@parent";
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
+            command.Parameters.AddWithValue("@id", subscriptionId);
+            command.Parameters.AddWithValue("@parent", parent);
+
+            NpgsqlDataReader reader = command.ExecuteReader();
+            reader.Read();
+
+            Models.Subscription subscription = new Models.Subscription
+            {
+                Id = (long)reader["id"],
+                Name = (string)reader["name"],
+                EventType = (string)reader["event"],
+                Endpoint = (string)reader["endpoint"],
+                Creation_dt = (DateTime)reader["creation_dt"],
+                Parent = (long)reader["parent"]
+            };
+
+            reader.Close();
+            conn.Close();
+            return subscription;
+        } //SUBSCRIPTION INFO
+
+        public static List<Models.Subscription> GetAllSubscriptions()
+        {
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
+            conn.Open();
+
+            string str = "SELECT * FROM subscription";
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
+
+            NpgsqlDataReader reader = command.ExecuteReader();
+            List<Models.Subscription> list = new List<Models.Subscription>();
+
+            while (reader.Read())
+            {
+                Models.Subscription subscription = new Models.Subscription
+                {
+                    Id = (long)reader["id"],
+                    Name = (string)reader["name"],
+                    EventType = (string)reader["event"],
+                    Endpoint = (string)reader["endpoint"],
+                    Creation_dt = (DateTime)reader["creation_dt"],
+                    Parent = (long)reader["parent"]
+                };
+                list.Add(subscription);
+            }
+
+            reader.Close();
+            conn.Close();
+            return list;
+        } //TODAS
+
+        public static List<Models.Subscription> GetSubscriptions(string application) //MUDAR para so app
+        {
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
+            conn.Open();
+
+            long parent = GetApplicationId(application);
+
+            string str = "SELECT * FROM subscription WHERE parent=@parent";
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
+            command.Parameters.AddWithValue("@parent", parent);
+
+            NpgsqlDataReader reader = command.ExecuteReader();
+            List<Models.Subscription> list = new List<Models.Subscription>();
+            while (reader.Read())
+            {
+                Models.Subscription subscription = new Models.Subscription
+                {
+                    Id = (long)reader["id"],
+                    Name = (string)reader["name"],
+                    EventType = (string)reader["event"],
+                    Endpoint = (string)reader["endpoint"],
+                    Creation_dt = (DateTime)reader["creation_dt"],
+                    Parent = (long)reader["parent"]
+                };
+                list.Add(subscription);
+            }
+
+            reader.Close();
+            conn.Close();
+            return list;
+        }
+
+        public static List<Models.Subscription> GetSubscriptions(string application, string container)
+        {
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
+            conn.Open();
+            long parent = GetContainerId(container);
+            string str = "SELECT * FROM subscription WHERE parent=@parent";
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
+            command.Parameters.AddWithValue("@parent", parent);
+            NpgsqlDataReader reader = command.ExecuteReader();
+            List<Models.Subscription> list = new List<Models.Subscription>();
+            while (reader.Read())
+            {
+                Models.Subscription subscription = new Models.Subscription
+                {
+                    Id = (long)reader["id"],
+                    Name = (string)reader["name"],
+                    EventType = (string)reader["event"],
+                    Endpoint = (string)reader["endpoint"],
+                    Creation_dt = (DateTime)reader["creation_dt"],
+                    Parent = (long)reader["parent"]
+                };
+                list.Add(subscription);
+            }
+            reader.Close();
+            conn.Close();
+            return list;
+        } // FAZER PARA CONTAINER
         #endregion
-        
+
     }
 }

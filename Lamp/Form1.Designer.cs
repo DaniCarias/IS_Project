@@ -56,7 +56,7 @@
             // 
             // btn_create_app_cont
             // 
-            this.btn_create_app_cont.Location = new System.Drawing.Point(152, 407);
+            this.btn_create_app_cont.Location = new System.Drawing.Point(152, 439);
             this.btn_create_app_cont.Name = "btn_create_app_cont";
             this.btn_create_app_cont.Size = new System.Drawing.Size(249, 23);
             this.btn_create_app_cont.TabIndex = 2;
@@ -66,9 +66,9 @@
             // 
             // btn_subsc
             // 
-            this.btn_subsc.Location = new System.Drawing.Point(231, 448);
+            this.btn_subsc.Location = new System.Drawing.Point(230, 477);
             this.btn_subsc.Name = "btn_subsc";
-            this.btn_subsc.Size = new System.Drawing.Size(88, 23);
+            this.btn_subsc.Size = new System.Drawing.Size(91, 23);
             this.btn_subsc.TabIndex = 3;
             this.btn_subsc.Text = "Subscrive";
             this.btn_subsc.UseVisualStyleBackColor = true;
