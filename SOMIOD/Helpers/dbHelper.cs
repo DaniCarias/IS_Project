@@ -27,17 +27,52 @@ namespace SOMIOD.Helpers
 
         static string connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};";
 
-        //VERIFICAR SE A APP E CONTAINER ESTAM CERTOS NO URL!!!!!!!!!!!!!!!!!!!!!!
-        //Criar um metodo que verifica se o parente é o mesmo que está no url
-        public static Boolean IsParentCorrect(long parent, string type)
+        public static Boolean VerifyParent(string model_type, string url_child, string url_parent)
         {
-            //TODO
-            return true;
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
+            conn.Open();
+
+            long url_parent_id;
+
+            switch (model_type)
+            {
+                case "Container":
+                    Models.Container container = GetContainer(url_child);
+
+                    url_parent_id = GetApplicationId(url_parent);
+                    
+                    if (container.Parent != url_parent_id)
+                        return false;
+                    else
+                        return true;
+
+                case "Data":
+                    Models.Data data = GetData(long.Parse(url_child));
+
+                    url_parent_id = GetContainerId(url_parent);
+
+                    if (data.Parent != url_parent_id)
+                        return false;
+                    else
+                        return true;
+
+                case "Subscription":
+                    Models.Subscription subscription = GetSubscription(url_child);
+
+                    url_parent_id = GetContainerId(url_parent);
+
+                    if (subscription.Parent != url_parent_id)
+                        return false;
+                    else
+                        return true;
+                default:
+                    return false;
+            }
         }
 
         #region Applications
 
-        //VERIFY IF APPLICATION EXISTS
+            //VERIFY IF APPLICATION EXISTS
         public static Boolean IsApplicationExists(string application_name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
@@ -283,6 +318,7 @@ namespace SOMIOD.Helpers
 
             int rows = command.ExecuteNonQuery();
             conn.Close();
+
             if (rows <= 0)
                 return false;
             else
@@ -312,17 +348,14 @@ namespace SOMIOD.Helpers
         }
 
         //CONTAINER INFO
-        public static Models.Container GetContainer(string application, string name)
+        public static Models.Container GetContainer(string name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            long parent = GetApplicationId(application);
-
-            string str = "SELECT * FROM container WHERE name ILIKE @name AND parent = @parent";
+            string str = "SELECT * FROM container WHERE name ILIKE @name";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@name", name);
-            command.Parameters.AddWithValue("@parent", parent);
 
             NpgsqlDataReader reader = command.ExecuteReader();
             reader.Read();
@@ -489,7 +522,7 @@ namespace SOMIOD.Helpers
         }
 
         //DATA INFO
-        public static Models.Data GetData(string application, string container, int dataId)
+        public static Models.Data GetData(long dataId)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -749,17 +782,14 @@ namespace SOMIOD.Helpers
         }
 
         //SUBSCRIPTION INFO
-        public static Models.Subscription GetSubscription(string application, string container, long subscriptionId)
+        public static Models.Subscription GetSubscription(string subscription_name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            long parent = GetContainerId(container);
-
-            string str = "SELECT * FROM subscription WHERE id=@id";
+            string str = "SELECT * FROM subscription WHERE name ILIKE @name";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
-            command.Parameters.AddWithValue("@id", subscriptionId);
-            command.Parameters.AddWithValue("@parent", parent);
+            command.Parameters.AddWithValue("@name", subscription_name);
 
             NpgsqlDataReader reader = command.ExecuteReader();
             reader.Read();
