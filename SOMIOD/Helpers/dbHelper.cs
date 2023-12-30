@@ -28,6 +28,12 @@ namespace SOMIOD.Helpers
         static string connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};";
 
         //VERIFICAR SE A APP E CONTAINER ESTAM CERTOS NO URL!!!!!!!!!!!!!!!!!!!!!!
+        //Criar um metodo que verifica se o parente é o mesmo que está no url
+        public static Boolean IsParentCorrect(long parent, string type)
+        {
+            //TODO
+            return true;
+        }
 
         #region Applications
 

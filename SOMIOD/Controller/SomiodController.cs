@@ -81,6 +81,9 @@ namespace SOMIOD.Controller
         {
             try
             {
+                if (dbHelper.IsApplicationExists(application))
+                    return BadRequest("Application do not exists");
+
                 var headers = Request.Headers;
 
                 if (headers.TryGetValues("somiod-discover", out var contentType))
@@ -121,6 +124,12 @@ namespace SOMIOD.Controller
         {
             try
             {
+                if (dbHelper.IsApplicationExists(application))
+                    return BadRequest("Application do not exists");
+
+                if (dbHelper.IsContainerExists(container))
+                    return BadRequest("Container do not exists");
+
                 var headers = Request.Headers;
 
                 if (headers.TryGetValues("somiod-discover", out var contentType))
