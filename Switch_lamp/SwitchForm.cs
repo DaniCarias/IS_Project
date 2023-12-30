@@ -9,6 +9,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Schema;
 using System.Xml.Serialization;
 using RestSharp;
 using Switch_lamp.Models;
@@ -22,14 +23,16 @@ namespace Switch_lamp
         private static readonly string apiUrl = Settings.Default.ApiUrl;
         private static readonly string appName = Settings.Default.AppName;
         private static readonly string containerName = Settings.Default.ContainerName;
+        private static readonly string LightAppName = Settings.Default.LightAppName;
         
         private readonly RestClient restClient = new RestClient(apiUrl);
         public SwitchForm()
         {
             InitializeComponent();
+            this.Shown += SwitchForm_Shown;
         }
 
-        private void Form1_Shown(object sender, EventArgs e)
+        private void SwitchForm_Shown (object sender, EventArgs e)
         {
             CreateApplication(appName);
         }
@@ -83,14 +86,11 @@ namespace Switch_lamp
 
         private void PostData(string content)
         {
-            RestRequest request = new RestRequest(apiUrl + $"/api/somiod/{appName}/{containerName}/data", Method.Post);
-            request.RequestFormat = DataFormat.Xml;
-            request.XmlSerializer = new RestSharp.Serializers.DotNetXmlSerializer();
-            request.AddXmlBody(data);
-            var stringwriter = new System.IO.StringWriter();
-            var serializer = new XmlSerializer(typeof(Data));
-            serializer.Serialize(stringwriter, new Data(content, containerName));
-            request.AddParameter("application/xml", stringwriter.ToString() , ParameterType.RequestBody);
+            string xmlData = $"<Data><Content>{content}</Content></Data>";
+            RestRequest request = new RestRequest(apiUrl + $"/api/somiod/{LightAppName}/{containerName}/data", Method.Post);
+            request.AddBody(xmlData, ContentType.Xml);
+            
+            
 
             var response = restClient.Execute<RestRequest>(request);
             if (CheckEntityExists(response))

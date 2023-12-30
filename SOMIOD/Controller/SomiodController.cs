@@ -18,12 +18,15 @@ using System.Web.UI.WebControls.WebParts;
 using System.Collections;
 using SOMIOD.Helpers;
 using System.Diagnostics;
+using System.IO;
 using static System.Net.Mime.MediaTypeNames;
 using Amazon.Auth.AccessControlPolicy;
 using static System.Net.WebRequestMethods;
 using System.Runtime.Remoting.Contexts;
 using System.Xml.Linq;
 using System.Runtime.InteropServices.ComTypes;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace SOMIOD.Controller
 {
@@ -356,8 +359,11 @@ namespace SOMIOD.Controller
 
         [HttpPost]
         [Route("{application}/{container}/data")] //Send Data to Broker - DONE
-        public IHttpActionResult SendDataToBroker(string application, string container, [FromBody] Data data)
+        public IHttpActionResult SendDataToBroker(string application, string container, [FromBody]XElement data1)
         {
+            XmlSerializer serializer = new XmlSerializer(typeof(Data));
+            Data data = (Data)serializer.Deserialize(new XmlTextReader(new StringReader(data1.ToString())));
+            
             try
             {
                 if (string.IsNullOrEmpty(data.Content))
@@ -391,6 +397,7 @@ namespace SOMIOD.Controller
                 return BadRequest(ex.ToString());
             }
         }
+  
 
         [HttpDelete]
         [Route("{application}/{container}/data/{dataId}")] //Delete Data - DONE

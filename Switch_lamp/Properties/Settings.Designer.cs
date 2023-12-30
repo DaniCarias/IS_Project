@@ -48,5 +48,17 @@ namespace Switch_lamp.Properties {
                 return ((string)(this["ContainerName"]));
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Lamp")]
+        public string LightAppName {
+            get {
+                return ((string)(this["LightAppName"]));
+            }
+            set {
+                this["LightAppName"] = value;
+            }
+        }
     }
 }
