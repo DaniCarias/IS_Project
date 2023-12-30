@@ -73,40 +73,7 @@ namespace Lamp
                     MessageBoxIcon.Error);
             }
         }
-
-        private void btn_create_app_cont_Click(object sender, EventArgs e)
-        {
-            //Como escolher o nome da aplicação e do container???? -> adicionar um textbox para cada um na UI???
-
-
-            //Verify if already exists (if yes disable the button, if no enable the button)
-            //[Route("{application}")] header = (somiod-discover = application) - Get application
-            //[Route("{application}/{container}")] header = (somiod-discover = container) - Get Container
-
-
-            //Request POST to create app
-            //[Route("")] - Create Application
-
-
-            //Request POST to create container
-            //[Route("{application}")] - Create Container
-
-
-        }
-
-        private void btn_subsc_Click(object sender, EventArgs e)
-        {
-            //Request POST to create subscribe
-            //[Route("{application}/{container}/subscription")] - Create Subscription
-
-
-            //Subscrive to broker in MQTT
-
-
-            //Listening if there is a message in MQTT chanel - here?????
-        }
-
-
+        
         private void Form1_Shown(object sender, EventArgs e)
         {
             ConnectToBroker();
@@ -170,11 +137,9 @@ namespace Lamp
             var app = new Application(applicationName);
             
             var request = new RestRequest(apiUrl + $"/api/somiod/", Method.Post);
-            request.AddHeader("somiod-discover", "application");
             request.AddObject(app);
         
             var response = restClient.Execute<RestRequest>(request);
-
             if (CheckEntityExists(response))
                 return;
 
@@ -193,7 +158,7 @@ namespace Lamp
             var container = new Container(containerName, applicationName);
 
             RestRequest request = new RestRequest(apiUrl + $"/api/somiod/{applicationName}", Method.Post);
-            request.AddHeader("somiod-discover", "container");
+            //request.AddHeader("somiod-discover", "container");
             request.AddObject(container);
             
             var response = restClient.Execute<RestRequest>(request);
@@ -213,7 +178,7 @@ namespace Lamp
         
         private bool CheckEntityExists(RestResponse response)
         {
-            if (response.StatusCode == HttpStatusCode.Conflict)
+            if ((int) response.StatusCode >= 300 /* HttpStatusCode.Conflict */)
                 return true;
 
             return false;
@@ -225,7 +190,7 @@ namespace Lamp
             var sub = new Subscription(subscriptionName, containerName, eventType, endpoint);
 
             var request = new RestRequest(apiUrl + $"api/somiod/{applicationName}/{containerName}/subscriptions", Method.Post);
-            request.AddHeader("somiod-discover", "subscription");
+            //request.AddHeader("somiod-discover", "subscription");
             request.AddObject(sub);
 
             var response = restClient.Execute<RestRequest>(request);
