@@ -200,9 +200,6 @@ namespace SOMIOD.Controller
         {
             try
             {
-                if (string.IsNullOrEmpty(application))
-                    return BadRequest("Invalid name");
-
                 if (!dbHelper.IsApplicationExists(application))
                     return BadRequest("Application does not exists");
                
@@ -226,9 +223,6 @@ namespace SOMIOD.Controller
         {
             try
             {
-                if (string.IsNullOrEmpty(application))
-                    return BadRequest("Application not found");
-
                 if (string.IsNullOrEmpty(name))
                     return BadRequest("Invalid Name");
 
@@ -260,9 +254,6 @@ namespace SOMIOD.Controller
 
             try
             {
-                if (string.IsNullOrEmpty(application))
-                    return BadRequest("Invalid application");
-
                 if (string.IsNullOrEmpty(container.Name))
                 return BadRequest("Invalid container");
 
@@ -292,12 +283,6 @@ namespace SOMIOD.Controller
         {
             try
             {
-                if (string.IsNullOrEmpty(application))
-                    return BadRequest("Invalid application");
-
-                if (string.IsNullOrEmpty(container))
-                    return BadRequest("Invalid Container");
-
                 if (!dbHelper.IsApplicationExists(application))
                     return BadRequest("Application does not exists");
 
@@ -326,12 +311,6 @@ namespace SOMIOD.Controller
         {
             try
             {
-                if (string.IsNullOrEmpty(application))
-                    return BadRequest("Invalid application");
-
-                if (string.IsNullOrEmpty(container))
-                    return BadRequest("Invalid container");
-
                 if (string.IsNullOrEmpty(name))
                     return BadRequest("Invalid Name");
 
@@ -368,12 +347,6 @@ namespace SOMIOD.Controller
         {
             try
             {
-                if (string.IsNullOrEmpty(application))
-                    return BadRequest("Invalid application");
-
-                if (string.IsNullOrEmpty(container))
-                    return BadRequest("Invalid container");
-
                 if (string.IsNullOrEmpty(data.Content))
                     return BadRequest("Invalid data");
 
@@ -412,12 +385,6 @@ namespace SOMIOD.Controller
         {
             try
             {
-                if (string.IsNullOrEmpty(application))
-                    return BadRequest("Invalid application");
-
-                if (string.IsNullOrEmpty(container))
-                    return BadRequest("Invalid container");
-
                 if (!dbHelper.IsApplicationExists(application))
                     return BadRequest("Application does not exists");
 
@@ -449,12 +416,6 @@ namespace SOMIOD.Controller
         {
             try
             {
-                if (string.IsNullOrEmpty(application))
-                    return BadRequest("Invalid application");
-
-                if (string.IsNullOrEmpty(container))
-                    return BadRequest("Invalid container");
-
                 if (string.IsNullOrEmpty(content))
                     return BadRequest("Invalid content");
 
@@ -500,12 +461,6 @@ namespace SOMIOD.Controller
         {
             try
             {
-                if (string.IsNullOrEmpty(application))
-                    return BadRequest("Invalid application");
-
-                if (string.IsNullOrEmpty(container))
-                    return BadRequest("Invalid container");
-
                 if (string.IsNullOrEmpty(data.Name))
                     return BadRequest("Invalid subscription name");
 
@@ -538,15 +493,6 @@ namespace SOMIOD.Controller
         {
             try
             {
-                if (string.IsNullOrEmpty(application))
-                    return BadRequest("Invalid application");
-
-                if (string.IsNullOrEmpty(container))
-                    return BadRequest("Invalid container");
-
-                if (string.IsNullOrEmpty(subscriptionName))
-                    return BadRequest("Invalid subscription name");
-
                 if (!dbHelper.IsApplicationExists(application))
                     return BadRequest("Application does not exists");
 
@@ -578,15 +524,6 @@ namespace SOMIOD.Controller
         {
             try
             {
-                if (string.IsNullOrEmpty(application))
-                    return BadRequest("Invalid application");
-
-                if (string.IsNullOrEmpty(container))
-                    return BadRequest("Invalid container");
-
-                if (string.IsNullOrEmpty(subscriptionName))
-                    return BadRequest("Invalid subscription name");
-
                 if (!dbHelper.IsApplicationExists(application))
                     return BadRequest("Application does not exists");
 

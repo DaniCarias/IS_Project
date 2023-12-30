@@ -70,6 +70,7 @@ namespace SOMIOD.Helpers
             }
         }
 
+
         #region Applications
 
             //VERIFY IF APPLICATION EXISTS
