@@ -167,7 +167,7 @@ namespace SOMIOD.Controller
                 if (string.IsNullOrEmpty(app.Name))
                     return BadRequest("Invalid name");
 
-                if (!dbHelper.IsApplicationExist(app.Name))
+                if (dbHelper.IsApplicationExists(app.Name))
                     return Conflict();
 
                 Boolean res = dbHelper.CreateApplication(app.Name);
@@ -193,9 +193,9 @@ namespace SOMIOD.Controller
                 if (string.IsNullOrEmpty(application))
                     return BadRequest("Invalid name");
 
-                if (dbHelper.IsApplicationExist(application))
-                    return NotFound();
-
+                if (!dbHelper.IsApplicationExists(application))
+                    return BadRequest("Application do not exists");
+               
                 Boolean res = dbHelper.DeleteApplication(application);
 
                 if (res)
@@ -222,15 +222,15 @@ namespace SOMIOD.Controller
                 if (string.IsNullOrEmpty(name))
                     return BadRequest("Invalid Name");
 
-                if (dbHelper.IsApplicationExist(name))
-                    return NotFound();
+                if (!dbHelper.IsApplicationExists(application))
+                    return BadRequest("Application do not exists");
 
-                Application app = dbHelper.UpdateApplication(name, application);
+                Boolean res = dbHelper.UpdateApplication(name, application);
 
-                if (app == null)
-                    return BadRequest("Application not updated");
+                if (res)
+                    return Ok("Application updated");
                 else
-                    return Ok(app);
+                    return BadRequest("Application not updated");
             }
             catch (Exception ex)
             {
@@ -256,7 +256,10 @@ namespace SOMIOD.Controller
                 if (string.IsNullOrEmpty(container.Name))
                 return BadRequest("Invalid container");
 
-                if (!dbHelper.IsContainerExist(container.Name))
+                if(!dbHelper.IsApplicationExists(application))
+                    return BadRequest("Application do not exists");
+
+                if (dbHelper.IsContainerExists(container.Name))
                     return Conflict();
 
                 Boolean res = dbHelper.CreateContainer(container.Name, application);
@@ -285,15 +288,18 @@ namespace SOMIOD.Controller
                 if (string.IsNullOrEmpty(container))
                     return BadRequest("Invalid Container");
 
-                if (!dbHelper.IsContainerExist(container))
+                if (!dbHelper.IsApplicationExists(application))
+                    return BadRequest("Application do not exists");
+
+                if (!dbHelper.IsContainerExists(container))
                     return NotFound();
 
                 Boolean res = dbHelper.DeleteContainer(application, container);
 
                 if (res)
-                    return Ok("Application deleted successfully");
+                    return Ok("Container deleted successfully");
                 else
-                    return BadRequest("Application not deleted");
+                    return BadRequest("Container not deleted");
             }
             catch (Exception ex)
             {
@@ -316,15 +322,18 @@ namespace SOMIOD.Controller
                 if (string.IsNullOrEmpty(name))
                     return BadRequest("Invalid Name");
 
-                if (!dbHelper.IsContainerExist(name))
-                    return NotFound();
+                if (!dbHelper.IsApplicationExists(application))
+                    return BadRequest("Application do not exists");
 
-                Container c = dbHelper.UpdateContainer(name, application, container);
+                if (!dbHelper.IsContainerExists(container))
+                    return BadRequest("Container do not exists");
 
-                if (c == null)
-                    return BadRequest("Container not updated");
+                Boolean res = dbHelper.UpdateContainer(name, application, container);
+
+                if (res)
+                    return Ok("Container updated");
                 else
-                    return Ok(c);
+                    return BadRequest("Container not updated");
             }
             catch (Exception ex)
             {
@@ -351,6 +360,12 @@ namespace SOMIOD.Controller
 
                 if (string.IsNullOrEmpty(data.Content))
                     return BadRequest("Invalid data");
+
+                if(!dbHelper.IsApplicationExists(application))
+                    return BadRequest("Application do not exists");
+
+                if (!dbHelper.IsContainerExists(container))
+                    return BadRequest("Container do not exists");
 
                 Boolean res = dbHelper.CreateData(data.Content, application, container);
 
@@ -384,8 +399,14 @@ namespace SOMIOD.Controller
                 if (string.IsNullOrEmpty(container))
                     return BadRequest("Invalid container");
 
-                if(!dbHelper.IsDataExists(dataId))
-                    return NotFound();
+                if (!dbHelper.IsApplicationExists(application))
+                    return BadRequest("Application do not exists");
+
+                if (!dbHelper.IsContainerExists(container))
+                    return BadRequest("Container do not exists");
+
+                if (!dbHelper.IsDataExists(dataId))
+                    return BadRequest("Data do not exists");
 
                 Boolean res = dbHelper.DeleteData(application, container, dataId);
 
@@ -415,15 +436,21 @@ namespace SOMIOD.Controller
                 if (string.IsNullOrEmpty(content))
                     return BadRequest("Invalid content");
 
+                if (!dbHelper.IsApplicationExists(application))
+                    return BadRequest("Application do not exists");
+
+                if (!dbHelper.IsContainerExists(container))
+                    return BadRequest("Container do not exists");
+
                 if (!dbHelper.IsDataExists(dataId))
-                    return NotFound();
+                    return BadRequest("Data do not exists");
 
-                Data data = dbHelper.UpdateData(application, container, dataId, content);
+                Boolean res = dbHelper.UpdateData(application, container, dataId, content);
 
-                if (data == null)
-                    return BadRequest("Data not updated");
+                if (res)
+                    return Ok("Data updated");
                 else
-                    return Ok(data);
+                    return BadRequest("Data not updated");
             }
             catch (Exception ex)
             {
@@ -449,27 +476,30 @@ namespace SOMIOD.Controller
             try
             {
                 if (string.IsNullOrEmpty(application))
-                {
                     return BadRequest("Invalid application");
-                }
 
                 if (string.IsNullOrEmpty(container))
-                {
                     return BadRequest("Invalid container");
-                }
 
                 if (string.IsNullOrEmpty(data.Name))
-                {
                     return BadRequest("Invalid subscription name");
-                }
 
                 if (string.IsNullOrEmpty(data.Endpoint))
-                {
-                    return BadRequest("Invalid endpoint");
-                }
+                    return BadRequest("Invalid subscription endpoint");
 
-                dbHelper.CreateSubscription(data.Name, data.Endpoint, application, container);
-                return Ok("Subscription created successfully");
+                if (!dbHelper.IsApplicationExists(application))
+                    return BadRequest("Application do not exists");
+
+                if (!dbHelper.IsContainerExists(container))
+                    return BadRequest("Container do not exists");
+
+                Boolean res = dbHelper.CreateSubscription(data.Name, data.Endpoint, application, container);
+
+                if (res)
+                    return Ok("Subscription created successfully");
+                else
+                    return BadRequest("Subscription not created");
+
             }
             catch (Exception ex)
             {
@@ -484,22 +514,29 @@ namespace SOMIOD.Controller
             try
             {
                 if (string.IsNullOrEmpty(application))
-                {
                     return BadRequest("Invalid application");
-                }
 
                 if (string.IsNullOrEmpty(container))
-                {
                     return BadRequest("Invalid container");
-                }
 
                 if (string.IsNullOrEmpty(subscriptionName))
-                {
                     return BadRequest("Invalid subscription name");
-                }
 
-                dbHelper.DeleteSubscription(application, container, subscriptionName);
-                return Ok("Subscription deleted successfully");
+                if (!dbHelper.IsApplicationExists(application))
+                    return BadRequest("Application do not exists");
+
+                if (!dbHelper.IsContainerExists(container))
+                    return BadRequest("Container do not exists");
+
+                if (!dbHelper.IsSubscriptionExists(subscriptionName))
+                    return BadRequest("Subscription do not exists");
+
+                Boolean res = dbHelper.DeleteSubscription(application, container, subscriptionName);
+
+                if (res)
+                    return Ok("Subscription deleted successfully");
+                else
+                    return BadRequest("Subscription not deleted");
             }
             catch (Exception ex)
             {
@@ -514,24 +551,35 @@ namespace SOMIOD.Controller
             try
             {
                 if (string.IsNullOrEmpty(application))
-                {
                     return BadRequest("Invalid application");
-                }
+
                 if (string.IsNullOrEmpty(container))
-                {
                     return BadRequest("Invalid container");
-                }
+
                 if (string.IsNullOrEmpty(subscriptionName))
-                {
                     return BadRequest("Invalid subscription name");
-                }
-                if (data == null)
-                {
-                    return BadRequest("Invalid data");
-                }
+
+                if (!dbHelper.IsApplicationExists(application))
+                    return BadRequest("Application do not exists");
+
+                if (!dbHelper.IsContainerExists(container))
+                    return BadRequest("Container do not exists");
+
+                if (!dbHelper.IsSubscriptionExists(subscriptionName))
+                    return BadRequest("Subscription do not exists");
+
+                if (string.IsNullOrEmpty(data.Name))
+                    data.Name = null;
+
+                if (string.IsNullOrEmpty(data.Endpoint))
+                    data.Endpoint = null;
                 
-                Subscription subs = dbHelper.UpdateSubscription(application, container, subscriptionName, data.Name, data.Endpoint);
-                return Ok(subs);
+                Boolean res = dbHelper.UpdateSubscription(application, container, subscriptionName, data.Name, data.Endpoint);
+
+                if (res)
+                    return Ok("Subscription updated");
+                else
+                    return BadRequest("Subscription not updated");
             }
             catch (Exception ex)
             {

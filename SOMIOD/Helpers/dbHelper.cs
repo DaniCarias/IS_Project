@@ -27,11 +27,12 @@ namespace SOMIOD.Helpers
 
         static string connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};";
 
+        //VERIFICAR SE A APP E CONTAINER ESTAM CERTOS NO URL!!!!!!!!!!!!!!!!!!!!!!
 
         #region Applications
 
         //VERIFY IF APPLICATION EXISTS
-        public static Boolean IsApplicationExist(string application_name)
+        public static Boolean IsApplicationExists(string application_name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -50,7 +51,7 @@ namespace SOMIOD.Helpers
         //GET APPLICATION ID
         public static long GetApplicationId(string application_name)
         {
-            Boolean exists = IsApplicationExist(application_name);
+            Boolean exists = IsApplicationExists(application_name);
 
             if (!exists)
             {
@@ -116,7 +117,7 @@ namespace SOMIOD.Helpers
         }
 
         //UPDATE APPLICATION NAME
-        public static Models.Application UpdateApplication(string newName, string oldName)
+        public static Boolean UpdateApplication(string newName, string oldName)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -127,12 +128,13 @@ namespace SOMIOD.Helpers
             command.Parameters.AddWithValue("@old_name", oldName);
 
             int rows = command.ExecuteNonQuery();
-
             conn.Close();
-            if (rows <= 0)
-                return null;
 
-            return GetApplication(newName);
+            if (rows <= 0)
+                return false;
+            else
+                return true;
+
         }
 
         //APPLICATION INFO
@@ -198,7 +200,7 @@ namespace SOMIOD.Helpers
         #region Containers
 
         //VERIFY IF CONTAINER EXISTS
-        public static Boolean IsContainerExist(string application_name)
+        public static Boolean IsContainerExists(string application_name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -217,7 +219,7 @@ namespace SOMIOD.Helpers
         //GET CONTAINER ID
         public static long GetContainerId(string container_name)
         {
-            Boolean exists = IsContainerExist(container_name);
+            Boolean exists = IsContainerExists(container_name);
 
             if (!exists)
             {
@@ -269,12 +271,9 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            long parent = GetApplicationId(application);
-
-            string str = "DELETE FROM container WHERE name ILIKE @container AND parent = @parent";
+            string str = "DELETE FROM container WHERE name ILIKE @container";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@container", container);
-            command.Parameters.AddWithValue("@parent", parent);
 
             int rows = command.ExecuteNonQuery();
             conn.Close();
@@ -286,27 +285,23 @@ namespace SOMIOD.Helpers
         }
 
         //UPDATE CONTAINER NAME
-        public static Models.Container UpdateContainer(string new_name, string application, string old_name)
+        public static Boolean UpdateContainer(string new_name, string application, string old_name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            long parent = GetApplicationId(application);
-
-            string str = "UPDATE container SET name=@new_name WHERE name ILIKE @old_name AND parent=@parent";
+            string str = "UPDATE container SET name=@new_name WHERE name ILIKE @old_name";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@new_name", new_name);
             command.Parameters.AddWithValue("@old_name", old_name);
-            command.Parameters.AddWithValue("@parent", parent);
 
             int rows = command.ExecuteNonQuery();
             conn.Close();
 
             if (rows <= 0)
-                return null;
-
-            Models.Container cont = dbHelper.GetContainer(application, new_name);
-            return cont;
+                return false;
+            else
+                return true;
             
         }
 
@@ -415,13 +410,10 @@ namespace SOMIOD.Helpers
             command.Parameters.AddWithValue("@id", dataId);
 
             NpgsqlDataReader reader = command.ExecuteReader();
-            reader.Close();
-            conn.Close();
+            Boolean exists = reader.HasRows;
 
-            if (reader.Read())
-                return true;
-            else
-                return false;
+            conn.Close();
+            return exists;
 
         }
 
@@ -455,12 +447,9 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            long parent = GetContainerId(application);
-
-            string str = "DELETE FROM data WHERE id=@id AND parent=@parent";
+            string str = "DELETE FROM data WHERE id=@id";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@id", dataId);
-            command.Parameters.AddWithValue("@parent", parent);
 
             int rows = command.ExecuteNonQuery();
             conn.Close();
@@ -473,27 +462,24 @@ namespace SOMIOD.Helpers
         }
 
         //UPDATE DATA CONTENT
-        public static Models.Data UpdateData(string application, string container, int dataId, string new_content)
+        public static Boolean UpdateData(string application, string container, int dataId, string new_content)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            long parent = GetContainerId(container);
-
-            string str = "UPDATE data SET content = @new_content WHERE id=@id AND parent=@parent";
+            string str = "UPDATE data SET content = @new_content WHERE id=@id";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@new_content", new_content);
             command.Parameters.AddWithValue("@id", dataId);
-            command.Parameters.AddWithValue("@parent", parent);
 
             int rows = command.ExecuteNonQuery();
             conn.Close();
 
             if (rows <= 0)
-                return null;
+                return false;
+            else
+                return true;
 
-            Models.Data data = dbHelper.GetData(application, container, dataId);
-            return data;
         }
 
         //DATA INFO
@@ -502,12 +488,9 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            long parent = GetContainerId(container);
-
-            string str = "SELECT * FROM data WHERE id=@id AND parent=@parent";
+            string str = "SELECT * FROM data WHERE id=@id";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@id", dataId);
-            command.Parameters.AddWithValue("@parent", parent);
 
             NpgsqlDataReader reader = command.ExecuteReader();
             reader.Read();
@@ -624,7 +607,7 @@ namespace SOMIOD.Helpers
         #region Subscription
 
         //VERIFY IF SUBSCRIPTION EXISTS
-        public static Boolean IsSubscriptionExist(string subscriptionName)
+        public static Boolean IsSubscriptionExists(string subscriptionName)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -644,7 +627,7 @@ namespace SOMIOD.Helpers
         //GET SUBSCRIPTION ID
         public static long GetSubscriptionId(string application, string container, string subscriptionName)
         {
-            Boolean exists = IsSubscriptionExist(subscriptionName);
+            Boolean exists = IsSubscriptionExists(subscriptionName);
 
             if (!exists)
             {
@@ -654,12 +637,9 @@ namespace SOMIOD.Helpers
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            long parent = GetContainerId(container);
-
-            string str = "SELECT id FROM subscription WHERE name=@name AND parent=@parent";
+            string str = "SELECT id FROM subscription WHERE name=@name";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@name", subscriptionName);
-            command.Parameters.AddWithValue("@parent", parent);
 
             NpgsqlDataReader reader = command.ExecuteReader();
             reader.Read();
@@ -672,7 +652,7 @@ namespace SOMIOD.Helpers
         }
 
         //CREATE SUBSCRIPTION
-        public static void CreateSubscription(string name, string endPoint, string application, string container)
+        public static Boolean CreateSubscription(string name, string endPoint, string application, string container)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -688,14 +668,15 @@ namespace SOMIOD.Helpers
 
             int rows = command.ExecuteNonQuery();
             conn.Close();
+
             if (rows <= 0)
-            {
-                throw new Exception("Error");
-            }
+                return false;
+            else
+                return true;
         }
 
         //DELETE SUBSCRIPTION
-        public static void DeleteSubscription(string application, string container, string subscriptionName)
+        public static Boolean DeleteSubscription(string application, string container, string subscriptionName)
         {
             long subscriptionId = GetSubscriptionId(application, container, subscriptionName);
 
@@ -704,7 +685,7 @@ namespace SOMIOD.Helpers
 
             long parent = GetContainerId(container);
 
-            string str = "DELETE FROM subscription WHERE id=@id AND parent=@parent";
+            string str = "DELETE FROM subscription WHERE id=@id";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@id", subscriptionId);
             command.Parameters.AddWithValue("@parent", parent);
@@ -713,37 +694,52 @@ namespace SOMIOD.Helpers
             conn.Close();
 
             if (rows <= 0)
-            {
-                throw new Exception("Error");
-            }
+                return false;
+            else
+                return true;
         }
 
         //UPDATE SUBSCRIPTION
-        public static Models.Subscription UpdateSubscription(string application, string container, string subscriptionName, string new_name, string new_endPoint)
+        public static Boolean UpdateSubscription(string application, string container, string subscriptionName, string new_name, string new_endPoint)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
             long subscriptionId = GetSubscriptionId(application, container, subscriptionName);
-            long parent = GetContainerId(container);
 
-            string str = "UPDATE subscription SET name = @new_name, endpoint = @new_endPoint WHERE id=@id AND parent=@parent";
-            NpgsqlCommand command = new NpgsqlCommand(str, conn);
-            command.Parameters.AddWithValue("@new_name", new_name);
-            command.Parameters.AddWithValue("@new_endPoint", new_endPoint);
+            string str;
+            NpgsqlCommand command;
+
+            if (new_endPoint == null) //Update only the name
+            {
+                str = "UPDATE subscription SET name = @new_name WHERE id=@id";
+                command = new NpgsqlCommand(str, conn);
+                command.Parameters.AddWithValue("@new_name", new_name);
+
+            }else if (new_name == null) //Update only the endpoint
+            {
+                str = "UPDATE subscription SET endpoint = @new_endPoint WHERE id=@id";
+                command = new NpgsqlCommand(str, conn);
+                command.Parameters.AddWithValue("@new_endPoint", new_endPoint);
+            }
+            else //Update name and endpoint
+            {
+                str = "UPDATE subscription SET name = @new_name, endpoint = @new_endPoint WHERE id=@id";
+                command = new NpgsqlCommand(str, conn);
+                command.Parameters.AddWithValue("@new_name", new_name);
+                command.Parameters.AddWithValue("@new_endPoint", new_endPoint);
+            }
+
             command.Parameters.AddWithValue("@id", subscriptionId);
-            command.Parameters.AddWithValue("@parent", parent);
 
             int rows = command.ExecuteNonQuery();
             conn.Close();
 
             if (rows <= 0)
-            {
-                throw new Exception("Error");
-            }
+                return false;
+            else
+                return true;
 
-            Models.Subscription subscription = dbHelper.GetSubscription(application, container, subscriptionId);
-            return subscription;
         }
 
         //SUBSCRIPTION INFO
@@ -754,7 +750,7 @@ namespace SOMIOD.Helpers
 
             long parent = GetContainerId(container);
 
-            string str = "SELECT * FROM subscription WHERE id=@id AND parent=@parent";
+            string str = "SELECT * FROM subscription WHERE id=@id";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
             command.Parameters.AddWithValue("@id", subscriptionId);
             command.Parameters.AddWithValue("@parent", parent);
