@@ -241,7 +241,7 @@ namespace SOMIOD.Helpers
         }
 
         //CREATE CONTAINER
-        public static void CreateContainer(string container_name, string application)
+        public static Boolean CreateContainer(string container_name, string application)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -257,14 +257,14 @@ namespace SOMIOD.Helpers
             conn.Close();
 
             if (rows <= 0)
-            {
-               throw new Exception("Error");
-            }
+                return false;
+            else
+                return true;
 
         } 
     
         //DELETE CONTAINER
-        public static void DeleteContainer(string application, string container)
+        public static Boolean DeleteContainer(string application, string container)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -279,9 +279,10 @@ namespace SOMIOD.Helpers
             int rows = command.ExecuteNonQuery();
             conn.Close();
             if (rows <= 0)
-            {
-                throw new Exception("Error");
-            }
+                return false;
+            else
+                return true;
+
         }
 
         //UPDATE CONTAINER NAME
@@ -302,12 +303,11 @@ namespace SOMIOD.Helpers
             conn.Close();
 
             if (rows <= 0)
-            {
-                throw new Exception("Error");
-            }
+                return null;
 
             Models.Container cont = dbHelper.GetContainer(application, new_name);
             return cont;
+            
         }
 
         //CONTAINER INFO

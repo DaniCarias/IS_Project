@@ -251,17 +251,21 @@ namespace SOMIOD.Controller
             try
             {
                 if (string.IsNullOrEmpty(application))
-                {
                     return BadRequest("Invalid application");
-                }
 
                 if (string.IsNullOrEmpty(container.Name))
-                {
-                   return BadRequest("Invalid container");
-                }
+                return BadRequest("Invalid container");
 
-                dbHelper.CreateContainer(container.Name, application);
-                return Ok("Container created successfully");
+                if (!dbHelper.IsContainerExist(container.Name))
+                    return Conflict();
+
+                Boolean res = dbHelper.CreateContainer(container.Name, application);
+
+                if (res)
+                    return Ok("Container created successfully");
+                else
+                    return BadRequest("Container not created");
+
             }
             catch (Exception ex)
             {
@@ -276,17 +280,20 @@ namespace SOMIOD.Controller
             try
             {
                 if (string.IsNullOrEmpty(application))
-                {
                     return BadRequest("Invalid application");
-                }
 
                 if (string.IsNullOrEmpty(container))
-                {
                     return BadRequest("Invalid Container");
-                }
 
-                dbHelper.DeleteContainer(application, container);
-                return Ok("Application deleted successfully");
+                if (!dbHelper.IsContainerExist(container))
+                    return NotFound();
+
+                Boolean res = dbHelper.DeleteContainer(application, container);
+
+                if (res)
+                    return Ok("Application deleted successfully");
+                else
+                    return BadRequest("Application not deleted");
             }
             catch (Exception ex)
             {
@@ -301,22 +308,23 @@ namespace SOMIOD.Controller
             try
             {
                 if (string.IsNullOrEmpty(application))
-                {
                     return BadRequest("Invalid application");
-                }
 
                 if (string.IsNullOrEmpty(container))
-                {
                     return BadRequest("Invalid container");
-                }
 
                 if (string.IsNullOrEmpty(name))
-                {
                     return BadRequest("Invalid Name");
-                }
+
+                if (!dbHelper.IsContainerExist(name))
+                    return NotFound();
 
                 Container c = dbHelper.UpdateContainer(name, application, container);
-                return Ok(c);
+
+                if (c == null)
+                    return BadRequest("Container not updated");
+                else
+                    return Ok(c);
             }
             catch (Exception ex)
             {
