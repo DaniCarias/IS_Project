@@ -344,25 +344,21 @@ namespace SOMIOD.Controller
             try
             {
                 if (string.IsNullOrEmpty(application))
-                {
                     return BadRequest("Invalid application");
-                }
 
                 if (string.IsNullOrEmpty(container))
-                {
                     return BadRequest("Invalid container");
-                }
 
                 if (string.IsNullOrEmpty(data.Content))
-                {
                     return BadRequest("Invalid data");
-                }
 
-                dbHelper.CreateData(data.Content, application, container);
+                Boolean res = dbHelper.CreateData(data.Content, application, container);
+
+                if (!res)
+                    return BadRequest("Data not created");
 
                 if(mClient.IsConnected)
                 {
-                    
                     //envia a mensagem para o broker com o topico que foi selecionado e a mensagem que foi escrita
                     mClient.Publish(application, Encoding.UTF8.GetBytes(data.Content));
                 }
@@ -383,22 +379,20 @@ namespace SOMIOD.Controller
             try
             {
                 if (string.IsNullOrEmpty(application))
-                {
                     return BadRequest("Invalid application");
-                }
 
                 if (string.IsNullOrEmpty(container))
-                {
                     return BadRequest("Invalid container");
-                }
 
-                if (dataId == null)
-                {
-                    return BadRequest("Invalid dataId");
-                }
+                if(!dbHelper.IsDataExists(dataId))
+                    return NotFound();
 
-                dbHelper.DeleteData(application, container, dataId);
-                return Ok("Data deleted successfully");
+                Boolean res = dbHelper.DeleteData(application, container, dataId);
+
+                if(res)
+                    return Ok("Data deleted successfully");
+                else
+                    return BadRequest("Data not deleted");
             }
             catch (Exception ex)
             {
@@ -413,27 +407,23 @@ namespace SOMIOD.Controller
             try
             {
                 if (string.IsNullOrEmpty(application))
-                {
                     return BadRequest("Invalid application");
-                }
 
                 if (string.IsNullOrEmpty(container))
-                {
                     return BadRequest("Invalid container");
-                }
-
-                if (dataId == null)
-                {
-                    return BadRequest("Invalid dataId");
-                }
 
                 if (string.IsNullOrEmpty(content))
-                {
                     return BadRequest("Invalid content");
-                }
+
+                if (!dbHelper.IsDataExists(dataId))
+                    return NotFound();
 
                 Data data = dbHelper.UpdateData(application, container, dataId, content);
-                return Ok(data);
+
+                if (data == null)
+                    return BadRequest("Data not updated");
+                else
+                    return Ok(data);
             }
             catch (Exception ex)
             {

@@ -404,8 +404,29 @@ namespace SOMIOD.Helpers
 
         #region Data
 
+        //VERIFY IF DATA EXISTS
+        public static Boolean IsDataExists(int dataId)
+        {
+            NpgsqlConnection conn = new NpgsqlConnection(connectionString);
+            conn.Open();
+
+            string str = "SELECT * FROM data WHERE id=@id";
+            NpgsqlCommand command = new NpgsqlCommand(str, conn);
+            command.Parameters.AddWithValue("@id", dataId);
+
+            NpgsqlDataReader reader = command.ExecuteReader();
+            reader.Close();
+            conn.Close();
+
+            if (reader.Read())
+                return true;
+            else
+                return false;
+
+        }
+
         //CREATE DATA
-        public static void CreateData(string content, string app, string container)
+        public static Boolean CreateData(string content, string app, string container)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -422,19 +443,19 @@ namespace SOMIOD.Helpers
             conn.Close();
 
             if (rows <= 0)
-            {
-                throw new Exception("Error");
-            }
+                return false;
+            else
+                return true;
 
         }
 
         //DELETE DATA
-        public static void DeleteData(string application, string container, int dataId)
+        public static Boolean DeleteData(string application, string container, int dataId)
        {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
 
-            long parent = GetApplicationId(application);
+            long parent = GetContainerId(application);
 
             string str = "DELETE FROM data WHERE id=@id AND parent=@parent";
             NpgsqlCommand command = new NpgsqlCommand(str, conn);
@@ -443,10 +464,12 @@ namespace SOMIOD.Helpers
 
             int rows = command.ExecuteNonQuery();
             conn.Close();
+
             if (rows <= 0)
-            {
-                throw new Exception("Error");
-            }
+                return false;
+            else
+                return true;
+
         }
 
         //UPDATE DATA CONTENT
@@ -467,9 +490,7 @@ namespace SOMIOD.Helpers
             conn.Close();
 
             if (rows <= 0)
-            {
-                throw new Exception("Error");
-            }
+                return null;
 
             Models.Data data = dbHelper.GetData(application, container, dataId);
             return data;
