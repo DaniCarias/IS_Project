@@ -78,7 +78,7 @@ namespace SOMIOD.Helpers
         }
 
         //CREATE APPLICATION
-        public static void CreateApplication (string name)
+        public static Boolean CreateApplication (string name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -91,13 +91,13 @@ namespace SOMIOD.Helpers
             conn.Close();
 
             if (rows <= 0)
-            {
-                throw new Exception("Error");
-            }
+                return false;
+
+            return true;
         }
         
         //DELETE APPLICATION
-        public static void DeleteApplication(string name)
+        public static Boolean DeleteApplication(string name)
         {
             NpgsqlConnection conn = new NpgsqlConnection(connectionString);
             conn.Open();
@@ -108,10 +108,11 @@ namespace SOMIOD.Helpers
 
             int rows = command.ExecuteNonQuery();
             conn.Close();
+
             if (rows <= 0)
-            {
-                throw new Exception("Error");
-            }
+                return false;
+
+            return true;
         }
 
         //UPDATE APPLICATION NAME
@@ -129,9 +130,8 @@ namespace SOMIOD.Helpers
 
             conn.Close();
             if (rows <= 0)
-            {
-                throw new Exception("Error");
-            }
+                return null;
+
             return GetApplication(newName);
         }
 

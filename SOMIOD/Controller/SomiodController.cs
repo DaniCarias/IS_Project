@@ -22,6 +22,7 @@ using static System.Net.Mime.MediaTypeNames;
 using Amazon.Auth.AccessControlPolicy;
 using static System.Net.WebRequestMethods;
 using System.Runtime.Remoting.Contexts;
+using System.Xml.Linq;
 
 namespace SOMIOD.Controller
 {
@@ -164,12 +165,18 @@ namespace SOMIOD.Controller
             try
             {
                 if (string.IsNullOrEmpty(app.Name))
-                {
                     return BadRequest("Invalid name");
-                }
 
-                dbHelper.CreateApplication(app.Name);
-                return Ok("Application created successfully");
+                if (!dbHelper.IsApplicationExist(app.Name))
+                    return Conflict();
+
+                Boolean res = dbHelper.CreateApplication(app.Name);
+
+                if (res)
+                    return Ok("Application created successfully");
+                else
+                    return BadRequest("Application not created");
+
             }
             catch (Exception ex)
             {
@@ -184,12 +191,18 @@ namespace SOMIOD.Controller
             try
             {
                 if (string.IsNullOrEmpty(application))
-                {
                     return BadRequest("Invalid name");
-                }
 
-                dbHelper.DeleteApplication(application);
-                return Ok("Application deleted successfully");
+                if (dbHelper.IsApplicationExist(application))
+                    return NotFound();
+
+                Boolean res = dbHelper.DeleteApplication(application);
+
+                if (res)
+                    return Ok("Application deleted successfully");
+                else
+                    return BadRequest("Application not deleted");
+                
             }
             catch (Exception ex)
             {
@@ -204,17 +217,20 @@ namespace SOMIOD.Controller
             try
             {
                 if (string.IsNullOrEmpty(application))
-                {
                     return BadRequest("Application not found");
-                }
 
                 if (string.IsNullOrEmpty(name))
-                {
                     return BadRequest("Invalid Name");
-                }
+
+                if (dbHelper.IsApplicationExist(name))
+                    return NotFound();
 
                 Application app = dbHelper.UpdateApplication(name, application);
-                return Ok(app);
+
+                if (app == null)
+                    return BadRequest("Application not updated");
+                else
+                    return Ok(app);
             }
             catch (Exception ex)
             {
