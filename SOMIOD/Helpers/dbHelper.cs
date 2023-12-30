@@ -535,6 +535,9 @@ namespace SOMIOD.Helpers
             NpgsqlDataReader reader = command.ExecuteReader();
             reader.Read();
 
+            if (!reader.HasRows)
+                return null;
+
             Models.Data data = new Models.Data
             {
                 Id = (long)reader["id"],
@@ -560,6 +563,10 @@ namespace SOMIOD.Helpers
             List<Models.Data> list = new List<Models.Data>();
 
             NpgsqlDataReader reader = command.ExecuteReader();
+
+            if (!reader.HasRows)
+                return null;
+
             while (reader.Read())
             {
                 Models.Data data = new Models.Data
@@ -594,6 +601,10 @@ namespace SOMIOD.Helpers
             List<Models.Data> list = new List<Models.Data>();
 
             NpgsqlDataReader reader = command.ExecuteReader();
+
+            if (!reader.HasRows)
+                return null;
+
             while (reader.Read())
             {
                 Models.Data data = new Models.Data
@@ -623,8 +634,11 @@ namespace SOMIOD.Helpers
             command.Parameters.AddWithValue("@parent", parent);
 
             List<Models.Data> list = new List<Models.Data>();
-
             NpgsqlDataReader reader = command.ExecuteReader();
+
+            if (!reader.HasRows)
+                return null;
+
             while (reader.Read())
             {
                 Models.Data data = new Models.Data
@@ -795,6 +809,9 @@ namespace SOMIOD.Helpers
             NpgsqlDataReader reader = command.ExecuteReader();
             reader.Read();
 
+            if (!reader.HasRows)
+                return null;
+
             Models.Subscription subscription = new Models.Subscription
             {
                 Id = (long)reader["id"],
@@ -821,6 +838,9 @@ namespace SOMIOD.Helpers
 
             NpgsqlDataReader reader = command.ExecuteReader();
             List<Models.Subscription> list = new List<Models.Subscription>();
+
+            if (!reader.HasRows)
+                return null;
 
             while (reader.Read())
             {
@@ -858,6 +878,10 @@ namespace SOMIOD.Helpers
 
             NpgsqlDataReader reader = command.ExecuteReader();
             List<Models.Subscription> list = new List<Models.Subscription>();
+
+            if (!reader.HasRows)
+                return null;
+
             while (reader.Read())
             {
                 Models.Subscription subscription = new Models.Subscription
@@ -891,6 +915,9 @@ namespace SOMIOD.Helpers
 
             NpgsqlDataReader reader = command.ExecuteReader();
             List<Models.Subscription> list = new List<Models.Subscription>();
+
+            if (!reader.HasRows)
+                return null;
 
             while (reader.Read())
             {
