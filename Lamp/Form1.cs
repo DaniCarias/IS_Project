@@ -77,10 +77,13 @@ namespace Lamp
         private void Form1_Shown(object sender, EventArgs e)
         {
             ConnectToBroker();
-            SubscribeToTopics();
+            bool itSubbed = SubscribeToTopics();
             CreateApplication(appName);
             CreateContainer(containerName, appName);
-            CreateSubscription(subscriptionName, containerName, appName, eventType, endpoint);
+            if (itSubbed)
+            {
+                CreateSubscription(subscriptionName, containerName, appName, eventType, endpoint);
+            }
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -112,25 +115,47 @@ namespace Lamp
             }
         }
         
-        private void SubscribeToTopics()
+        private bool SubscribeToTopics()
         {
-            mClient.MqttMsgPublishReceived += clientPublishReceived;
-            byte[] qosLevels = { MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE };
-            mClient.Subscribe(topic, qosLevels);
+            try
+            {
+                mClient.MqttMsgPublishReceived += clientPublishReceived;
+                byte[] qosLevels = { MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE };
+                mClient.Subscribe(topic, qosLevels);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error subscribing to the topic: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            return true;
         }
         
         private void clientPublishReceived(object sender, MqttMsgPublishEventArgs args)
         {
+            
             string message = Encoding.UTF8.GetString(args.Message);
+            /*
             using (TextReader reader = new StringReader(message)) {
                 var res = (EventNotification) new XmlSerializer( typeof(EventNotification)).Deserialize(reader) as EventNotification;
                 if (res.EventType != "CREATE") return;
+            */
+                //switch (res.Content.ToString())
+                switch(message)
+                {
+                    case "ON":
+                        isOn = true;
+                        break;
+                    case "OFF":
+                        isOn = false;
+                        break;
+                }
 
-                isOn = res.Content;
                 ChangeLampImage(isOn);
             }
 
-        }
+        
         
         private void CreateApplication(string applicationName)
         {
@@ -178,7 +203,7 @@ namespace Lamp
         
         private bool CheckEntityExists(RestResponse response)
         {
-            if ((int) response.StatusCode >= 300 /* HttpStatusCode.Conflict */)
+            if (response.StatusCode == HttpStatusCode.Conflict)
                 return true;
 
             return false;
@@ -189,7 +214,7 @@ namespace Lamp
             //Probably Wrong yet, need to check
             var sub = new Subscription(subscriptionName, containerName, eventType, endpoint);
 
-            var request = new RestRequest(apiUrl + $"api/somiod/{applicationName}/{containerName}/subscriptions", Method.Post);
+            RestRequest request = new RestRequest(apiUrl + $"/api/somiod/{applicationName}/{containerName}/subscription", Method.Post);
             //request.AddHeader("somiod-discover", "subscription");
             request.AddObject(sub);
 

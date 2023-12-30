@@ -1,6 +1,6 @@
 ﻿namespace Switch_lamp
 {
-    partial class Form1
+    partial class SwitchForm
     {
         /// <summary>
         /// Required designer variable.
@@ -82,7 +82,7 @@
             this.Controls.Add(this.btn_off);
             this.Controls.Add(this.btn_on);
             this.Controls.Add(this.label1);
-            this.Name = "Form1";
+            this.Name = "SwitchForm";
             this.Text = "Form1";
             this.ResumeLayout(false);
             this.PerformLayout();

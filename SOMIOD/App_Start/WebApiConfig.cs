@@ -6,6 +6,7 @@ namespace SOMIOD
     {
         public static void Register(HttpConfiguration config)
         {
+
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
@@ -14,6 +15,7 @@ namespace SOMIOD
                 defaults: new { application = RouteParameter.Optional, 
                     container = RouteParameter.Optional, resource = RouteParameter.Optional }
             );
+           
 
             // remove json
             // https://learn.microsoft.com/en-us/aspnet/web-api/overview/formats-and-model-binding/json-and-xml-serialization#removing_the_json_or_xml_formatter
@@ -21,6 +23,7 @@ namespace SOMIOD
             
             var xml = GlobalConfiguration.Configuration.Formatters.XmlFormatter;
             xml.UseXmlSerializer = true;
+      
         }
     }
 }

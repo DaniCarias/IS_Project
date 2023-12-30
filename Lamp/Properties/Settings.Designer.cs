@@ -69,7 +69,7 @@ namespace Lamp.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("sub1")]
         public string SubscriptionName {
             get {
                 return ((string)(this["SubscriptionName"]));
