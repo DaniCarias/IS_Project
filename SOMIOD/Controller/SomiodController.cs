@@ -382,11 +382,14 @@ namespace SOMIOD.Controller
 
                 if (!res)
                     return BadRequest("Data not created");
+                
+                mClient.Connect(Guid.NewGuid().ToString());
 
-                if(mClient.IsConnected)
+                if (mClient.IsConnected)
                 {
-                    //envia a mensagem para o broker com o topico que foi selecionado e a mensagem que foi escrita
-                    mClient.Publish(application, Encoding.UTF8.GetBytes(data.Content));
+                    string xmlContent = $"<EventNotification><Content>{data.Content}</Content><EventType>CREATION</EventType></EventNotification>";
+                    mClient.Publish(container, Encoding.UTF8.GetBytes(xmlContent), MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, true);
+
                 }
 
                 return Ok("Data created successfully");

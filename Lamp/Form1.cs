@@ -9,6 +9,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
 using System.Xml.Serialization;
 using Lamp.Models;
 using Lamp.Properties;
@@ -131,18 +132,20 @@ namespace Lamp
 
             return true;
         }
-        
+
         private void clientPublishReceived(object sender, MqttMsgPublishEventArgs args)
         {
-            
+
             string message = Encoding.UTF8.GetString(args.Message);
-            /*
-            using (TextReader reader = new StringReader(message)) {
-                var res = (EventNotification) new XmlSerializer( typeof(EventNotification)).Deserialize(reader) as EventNotification;
-                if (res.EventType != "CREATE") return;
-            */
-                //switch (res.Content.ToString())
-                switch(message)
+            if(message == null)
+                return; 
+            XmlReader reader = XmlReader.Create(new StringReader(message));
+            reader.ReadToFollowing("Content");
+            string content = reader.ReadElementContentAsString();
+            if (content == null)
+                return;
+       
+                switch (content.ToUpper())
                 {
                     case "ON":
                         isOn = true;
@@ -151,12 +154,15 @@ namespace Lamp
                         isOn = false;
                         break;
                 }
-
                 ChangeLampImage(isOn);
-            }
+            
 
-        
-        
+            
+            
+        }
+
+
+
         private void CreateApplication(string applicationName)
         {
             var app = new Application(applicationName);
