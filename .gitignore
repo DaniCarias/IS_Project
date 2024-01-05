@@ -1,3 +1,10 @@
 packages
 .vs
 .idea
+Lamp/bin/
+Lamp/obj/
+Switch_lamp/obj/
+Switch_lamp/bin/
+SOMIOD/bin/
+SOMIOD/obj/
+*.cache

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Lamp
+namespace Switch_lamp
 {
     internal static class Program
     {
@@ -16,8 +16,7 @@ namespace Lamp
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Application.Run(new SwitchForm());
         }
-
     }
 }

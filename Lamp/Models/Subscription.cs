@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Web;
-using System.Web.UI.WebControls.WebParts;
 using System.Xml.Serialization;
 
-namespace SOMIOD.Models
+namespace Lamp.Models
 {
 
     [XmlRoot(ElementName = "Subscription")]
@@ -22,7 +21,7 @@ namespace SOMIOD.Models
         public DateTime Creation_dt { get; set; }
 
         [XmlElement(ElementName = "Parent")]
-        public long Parent { get; set; } //Container id
+        public string Parent { get; set; } //Container id
 
         [XmlElement(ElementName = "EventType")]
         public string EventType { get; set; }
@@ -33,11 +32,9 @@ namespace SOMIOD.Models
 
         public Subscription() { }
 
-        public Subscription(long id, string name, DateTime creationDate, long parent, string eventType, string endpoint)
+        public Subscription(string name, string parent, string eventType, string endpoint)
         {
-            Id = id;
             Name = name;
-            Creation_dt = creationDate; //.ToString("yyyy-MM-dd HH:mm:ss");
             Parent = parent;
             EventType = eventType;
             Endpoint = endpoint;

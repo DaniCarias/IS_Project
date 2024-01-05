@@ -1,7 +1,33 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Lamp.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="Topic" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">light_bulb</Value>
+    </Setting>
+    <Setting Name="BrokerIp" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">127.0.0.1</Value>
+    </Setting>
+    <Setting Name="ApiUrl" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://localhost:5000</Value>
+    </Setting>
+    <Setting Name="AppName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Lamp</Value>
+    </Setting>
+    <Setting Name="ContainerName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">light_bulb</Value>
+    </Setting>
+    <Setting Name="SubscriptionName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">sub1</Value>
+    </Setting>
+    <Setting Name="Endpoint" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">127.0.0.1</Value>
+    </Setting>
+    <Setting Name="EventType" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">CREATE</Value>
+    </Setting>
+    <Setting Name="Event" Type="System.String" Scope="User">
+      <Value Profile="(Default)">CREATE</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>

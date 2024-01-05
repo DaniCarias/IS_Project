@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Xml.Serialization;
 
-namespace SOMIOD.Models
+namespace Switch_lamp.Models
 {
     [XmlRoot(ElementName = "Application")]
     public class Application
@@ -20,12 +20,10 @@ namespace SOMIOD.Models
 
 
         public Application() { }
-
-        public Application(long id, string name, DateTime creationDate)
+        
+        public Application(string name)
         {
-            Id = id;
             Name = name;
-            Creation_dt = creationDate; //.ToString("yyyy-MM-dd HH:mm:ss");
         }
 
     }
