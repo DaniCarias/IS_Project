@@ -56,7 +56,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(563, 512);
+            this.ClientSize = new System.Drawing.Size(785, 762);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.lamp_photo);
             this.Name = "Form1";

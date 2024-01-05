@@ -41,9 +41,11 @@ namespace Lamp
 
         public Form1()
         {
+            
             InitializeComponent();
-            ChangeLampImage(isOn);
             this.Shown += Form1_Shown;
+            ChangeLampImage(isOn);
+            
             //this.FormClosing += Form1_FormClosing;
         }
 
@@ -60,12 +62,18 @@ namespace Lamp
             {
                 if (img != null)
                 {
-                    this.lamp_photo.Image = img;
-                    this.lamp_photo.SizeMode = PictureBoxSizeMode.Zoom;
-                    this.lamp_photo.Size = new Size(400, 400);
-                    this.lamp_photo.Refresh();
-                    this.lamp_photo.Update();
+                    if (this.lamp_photo.InvokeRequired)
+                    {
+                        this.lamp_photo.Invoke(new MethodInvoker(delegate { this.lamp_photo.Image = img; }));
+                    }
+                    else { 
 
+                        this.lamp_photo.Image = img;
+                        this.lamp_photo.SizeMode = PictureBoxSizeMode.Zoom;
+                        this.lamp_photo.Size = new Size(400, 400);
+                        this.lamp_photo.Refresh();
+                        this.lamp_photo.Update();
+                    }
                 }
             }
             catch (Exception ex)
@@ -217,11 +225,9 @@ namespace Lamp
         
         private void CreateSubscription(string subscriptionName, string containerName, string applicationName, string eventType, string endpoint)
         {
-            //Probably Wrong yet, need to check
             var sub = new Subscription(subscriptionName, containerName, eventType, endpoint);
 
             RestRequest request = new RestRequest(apiUrl + $"/api/somiod/{applicationName}/{containerName}/subscription", Method.Post);
-            //request.AddHeader("somiod-discover", "subscription");
             request.AddObject(sub);
 
             var response = restClient.Execute<RestRequest>(request);
@@ -235,8 +241,6 @@ namespace Lamp
                 return;
             }else apiConnected = true;
 
-            if (response.StatusCode != HttpStatusCode.OK)
-                MessageBox.Show("An error occurred while creating the subcription", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
     }

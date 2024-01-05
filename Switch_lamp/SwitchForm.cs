@@ -46,16 +46,6 @@ namespace Switch_lamp
         {
            PostData("OFF");
         }
-
-        private void btn_create_app_Click(object sender, EventArgs e)
-        {
-            //Verify if already exists (if yes disable the button, if no enable the button)
-
-
-            //Request POST to create an application
-            //[Route("")] - Create Application
-            
-        }
         
         private void CreateApplication(string applicationName)
         {
